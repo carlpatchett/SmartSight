@@ -1,0 +1,8 @@
+D:\Repos\SmartSight\SmartSight\SmartSight\bin\Debug\netcoreapp2.2\SmartSight.deps.json
+D:\Repos\SmartSight\SmartSight\SmartSight\bin\Debug\netcoreapp2.2\SmartSight.runtimeconfig.json
+D:\Repos\SmartSight\SmartSight\SmartSight\bin\Debug\netcoreapp2.2\SmartSight.runtimeconfig.dev.json
+D:\Repos\SmartSight\SmartSight\SmartSight\bin\Debug\netcoreapp2.2\SmartSight.dll
+D:\Repos\SmartSight\SmartSight\SmartSight\obj\Debug\netcoreapp2.2\SmartSight.csprojAssemblyReference.cache
+D:\Repos\SmartSight\SmartSight\SmartSight\obj\Debug\netcoreapp2.2\SmartSight.csproj.CoreCompileInputs.cache
+D:\Repos\SmartSight\SmartSight\SmartSight\obj\Debug\netcoreapp2.2\SmartSight.AssemblyInfoInputs.cache
+D:\Repos\SmartSight\SmartSight\SmartSight\obj\Debug\netcoreapp2.2\SmartSight.AssemblyInfo.cs
