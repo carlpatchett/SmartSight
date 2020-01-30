@@ -1,0 +1,6 @@
+D:\Repos\SmartSight\SmartSightInterop\bin\Debug\SmartSightInterop.dll
+D:\Repos\SmartSight\SmartSightInterop\bin\Debug\SmartSightInterop.pdb
+D:\Repos\SmartSight\SmartSightInterop\obj\Debug\SmartSightInterop.csproj.CoreCompileInputs.cache
+D:\Repos\SmartSight\SmartSightInterop\obj\Debug\SmartSightInterop.dll
+D:\Repos\SmartSight\SmartSightInterop\obj\Debug\SmartSightInterop.pdb
+D:\Repos\SmartSight\SmartSightInterop\bin\Debug\SmartSightInterop.tlb

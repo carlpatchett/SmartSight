@@ -1,0 +1,33 @@
+﻿  CameraCalibration.cpp
+  GeometryTypes.cpp
+  main.cpp
+  markerDetector.cpp
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(367,71): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(368,71): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(369,71): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(370,71): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:  'initializing': conversion from 'size_t' to '_Ty1', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:         with
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:         [
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:             _Ty1=int
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:         ]
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :  see reference to function template instantiation 'std::pair<int,int>::pair<size_t&,size_t&,0>(_Other1,_Other2) noexcept' being compiled
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :         with
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :         [
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :             _Other1=size_t &,
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :             _Other2=size_t &
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :         ]
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :  see reference to function template instantiation 'std::pair<int,int>::pair<size_t&,size_t&,0>(_Other1,_Other2) noexcept' being compiled
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :         with
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :         [
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :             _Other1=size_t &,
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :             _Other2=size_t &
+D:\Repos\SmartSight\SmartSightPlusPlus\markerDetector.cpp(160): message :         ]
+  Monitor.cpp
+  Generating Code...
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:  'initializing': conversion from 'size_t' to '_Ty2', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:         with
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:         [
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:             _Ty2=int
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\utility(123,1): warning C4267:         ]
+  SmartSightPlusPlus.vcxproj -> D:\Repos\SmartSight\x64\Debug\SmartSightPlusPlus.exe
