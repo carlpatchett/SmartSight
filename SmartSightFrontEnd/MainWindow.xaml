@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SmartSightFrontEnd"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="825">
+        Title="MainWindow" Height="900" Width="900">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -14,6 +14,8 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -33,7 +35,14 @@
                Grid.Row="1" 
                x:Name="DetectionDisplay"
                Height="400"
-               Width="400">
-        </Image>
+               Width="400" />
+
+        <TextBlock Text="Gesture Recognition (Threshold)" Grid.Row="2"/>
+
+        <Image x:Name="GestureThresholdDisplay" Grid.Row="3" />
+
+        <TextBlock Text="Gesture Recognition" Grid.Column="1" Grid.Row="2" />
+
+        <Image x:Name="GestureDisplay" Grid.Column="1" Grid.Row="3" />
     </Grid>
 </Window>

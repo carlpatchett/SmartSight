@@ -33,10 +33,8 @@ D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\dll\x86\OpenCvSharpExtern.dll
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\dll\x86\opencv_ffmpeg400.dll
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\dll\x64\OpenCvSharpExtern.dll
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\dll\x64\opencv_ffmpeg400_64.dll
-D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\SmartSightBase.exe
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.dll
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\SmartSightBase.pdb
-D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\SmartSightBase.exe.config
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.pdb
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.xml
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.Blob.dll
@@ -48,3 +46,8 @@ D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.Extensions.pdb
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.Extensions.xml
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.UserInterface.pdb
 D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\OpenCvSharp.UserInterface.xml
+D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\SmartSightBase.dll
+D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\SmartSightBase.dll.config
+D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\Emgu.Util.dll
+D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\Emgu.CV.dll
+D:\Repos\SmartSight\SmartSightFrontEnd\bin\Debug\Emgu.CV.UI.dll

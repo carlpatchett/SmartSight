@@ -1,0 +1,17 @@
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\ResolveAssemblyReference.cache
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.pdb
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.pdb
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.dll
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.pdb
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.csprojAssemblyReference.cache
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.csproj.CoreCompileInputs.cache
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.csproj.CopyComplete
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.dll
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.pdb
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.dll
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.dll
+D:\Repos\SmartSight\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.UI.dll

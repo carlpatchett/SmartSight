@@ -26,8 +26,6 @@ D:\Repos\SmartSight\SmartSightBase\bin\Debug\dll\x86\OpenCvSharpExtern.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\dll\x86\opencv_ffmpeg400.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\dll\x64\OpenCvSharpExtern.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\dll\x64\opencv_ffmpeg400_64.dll
-D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.exe.config
-D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.exe
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.pdb
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.Blob.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.dll
@@ -41,8 +39,13 @@ D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.Extensions.pdb
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.Extensions.xml
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.UserInterface.pdb
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.UserInterface.xml
-D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csprojAssemblyReference.cache
 D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csproj.CoreCompileInputs.cache
 D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csproj.CopyComplete
-D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.exe
 D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.pdb
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.dll.config
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.dll
+D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.dll
+D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csprojAssemblyReference.cache
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\Numpy.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\Python.Included.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\Python.Runtime.NETStandard.dll

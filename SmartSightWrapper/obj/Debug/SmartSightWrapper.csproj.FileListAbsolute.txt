@@ -1,6 +1,0 @@
-D:\Repos\SmartSight\SmartSightWrapper\bin\Debug\SmartSightWrapper.dll
-D:\Repos\SmartSight\SmartSightWrapper\bin\Debug\SmartSightWrapper.pdb
-D:\Repos\SmartSight\SmartSightWrapper\obj\Debug\SmartSightWrapper.csprojAssemblyReference.cache
-D:\Repos\SmartSight\SmartSightWrapper\obj\Debug\SmartSightWrapper.csproj.CoreCompileInputs.cache
-D:\Repos\SmartSight\SmartSightWrapper\obj\Debug\SmartSightWrapper.dll
-D:\Repos\SmartSight\SmartSightWrapper\obj\Debug\SmartSightWrapper.pdb

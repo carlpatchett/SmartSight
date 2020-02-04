@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Emgu.CV;
+using Emgu.CV.Structure;
 using OpenCvSharp;
 using SmartSightBase;
 
@@ -25,64 +27,63 @@ namespace SmartSightFrontEnd
     /// </summary>
     public partial class MainWindow : System.Windows.Window
     {
-        private static float[] mCameraMatrix = new float[9] { 612.84f, 0.0f, 326.46f, 0.0f, 612.84f, 289.42f, 0.0f, 0.0f, 1.0f };
-        private static MarkerDetector mMarkerDetector = new MarkerDetector(new CameraCalibration(mCameraMatrix[0], mCameraMatrix[4], mCameraMatrix[2], mCameraMatrix[5]));
-        private Mat mImg;
+        private readonly Monitor mMonitor = new Monitor();
 
         public MainWindow()
         {
             this.InitializeComponent();
 
-            mMarkerDetector.MarkerDetected += this.mMarkerDetector_MarkerDetected;
+            mMonitor.MarkerDetected += this.mMonitor_MarkerDetected;
+            mMonitor.HandDetected += this.mMonitor_HandDetected;
 
+            this.BeginMonitoring();
+        }
+
+        /// <summary>
+        /// Begins the monitoring process.
+        /// </summary>
+        private void BeginMonitoring()
+        {
             Task.Run(() =>
             {
-                using (var camera = new VideoCapture(0))
+                if (mMonitor.StartCameraMonitoring())
                 {
                     while (true)
                     {
-                        mImg = camera.RetrieveMat();
-                        mMarkerDetector.FindMarkers(mImg, true);
-
-                        this.Dispatcher.Invoke(() =>
+                        if (mMonitor.HasImg)
                         {
-                            var memStream = new MemoryStream();
-                            var bitmapImg = new BitmapImage();
-
-                            using (var ms = mImg.ToMemoryStream())
+                            this.Dispatcher.Invoke(() =>
                             {
-                                bitmapImg.BeginInit();
-                                bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
-                                bitmapImg.StreamSource = ms;
-                                bitmapImg.EndInit();
-
-                                this.WebcamDisplay.Source = bitmapImg;
+                                this.WebcamDisplay.Source = mMonitor.CameraImgAsBitmap;
+                                this.GestureThresholdDisplay.Source = mMonitor.GestureThresholdImgAsBitmap;
                                 this.WebcamDisplay.InvalidateVisual();
-                            };
-                        });
+                            });
+                        }
                     }
-                }
+                };
             });
         }
 
-        private void mMarkerDetector_MarkerDetected(object sender, EventArgs e)
+        /// <summary>
+        /// Handles the MarkerDetected event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
+        private void mMonitor_MarkerDetected(object sender, EventArgs e)
         {
-
             this.Dispatcher.Invoke(() =>
             {
-                var memStream = new MemoryStream();
-                var bitmapImg = new BitmapImage();
+                this.DetectionDisplay.Source = mMonitor.DetectedMarkerImgAsBitmap;
+                this.DetectionDisplay.InvalidateVisual();
+            });
+        }
 
-                using (var ms = mMarkerDetector.DetectedMarkerImg.ToMemoryStream())
-                {
-                    bitmapImg.BeginInit();
-                    bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImg.StreamSource = ms;
-                    bitmapImg.EndInit();
-
-                    this.DetectionDisplay.Source = bitmapImg;
-                    this.DetectionDisplay.InvalidateVisual();
-                };
+        private void mMonitor_HandDetected(object sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.GestureDisplay.Source = mMonitor.GestureImgAsBitmap;
+                this.GestureDisplay.InvalidateVisual();
             });
         }
     }
