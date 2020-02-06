@@ -20,6 +20,11 @@ namespace SmartSightBase
 
         public event EventHandler MarkerDetected = (s, e) => { };
         public event EventHandler HandDetected = (s, e) => { };
+        public event EventHandler OneFingerDetected = (s, e) => { };
+        public event EventHandler TwoFingersDetected = (s, e) => { };
+        public event EventHandler ThreeFingersDetected = (s, e) => { };
+        public event EventHandler FourFingersDetected = (s, e) => { };
+        public event EventHandler FiveFingersDetected = (s, e) => { };
 
         /// <summary>
         /// Creates a new instance of the <see cref="Monitor"/> class.
@@ -113,7 +118,7 @@ namespace SmartSightBase
                     return null;
                 }
 
-                using (var ms = GestureThresholdImg.ToMemoryStream())
+                using (var ms = this.GestureThresholdImg.ToMemoryStream())
                 {
                     var bitmapImg = new BitmapImage();
 
@@ -168,7 +173,13 @@ namespace SmartSightBase
         public bool StartCameraMonitoring()
         {
             this.MarkerDetector.MarkerDetected += this.mMarkerDetector_MarkerDetected;
+
             this.GestureDetector.HandDetected += this.mGestureDetector_HandDetected;
+            this.GestureDetector.OneFingerDetected += this.mGestureDetector_OneFingerDetected;
+            this.GestureDetector.TwoFingersDetected += this.mGestureDetector_TwoFingersDetected;
+            this.GestureDetector.ThreeFingersDetected += this.mGestureDetector_ThreeFingersDetected;
+            this.GestureDetector.FourFingersDetected += this.mGestureDetector_FourFingersDetected;
+            this.GestureDetector.FiveFingersDetected += this.mGestureDetector_FiveFingersDetected;
 
             Task.Run(() =>
             {
@@ -245,5 +256,37 @@ namespace SmartSightBase
             // Re-raise the event
             HandDetected.Invoke(this, new EventArgs());
         }
+        private void mGestureDetector_OneFingerDetected(object sender, EventArgs e)
+        {
+            // Re-raise the event
+            OneFingerDetected.Invoke(this, new EventArgs());
+        }
+
+        private void mGestureDetector_TwoFingersDetected(object sender, EventArgs e)
+        {
+            // Re-raise the event
+            TwoFingersDetected.Invoke(this, new EventArgs());
+        }
+
+        private void mGestureDetector_ThreeFingersDetected(object sender, EventArgs e)
+        {
+            // Re-raise the event
+            ThreeFingersDetected.Invoke(this, new EventArgs());
+        }
+
+        private void mGestureDetector_FourFingersDetected(object sender, EventArgs e)
+        {
+            // Re-raise the event
+            FourFingersDetected.Invoke(this, new EventArgs());
+        }
+
+
+        private void mGestureDetector_FiveFingersDetected(object sender, EventArgs e)
+        {
+            // Re-raise the event
+            FiveFingersDetected.Invoke(this, new EventArgs());
+        }
+
+
     }
 }

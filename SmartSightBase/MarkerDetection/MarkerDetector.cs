@@ -126,8 +126,15 @@ namespace SmartSightBase
                 //Approximate to a polygon
                 var eps = contours[i].Count * 0.05;
 
-                var inputArray = InputArray.Create(contours[i]);
-                var outputArray = OutputArray.Create(contours[i]);
+                try
+                {
+                    var inputArray = InputArray.Create(contours[i]);
+                    var outputArray = OutputArray.Create(contours[i]);
+                }
+                catch(ArgumentNullException)
+                {
+                    // Chomp chomp, no idea
+                }
 
                 var approxCurve = Cv2.ApproxPolyDP(contours[i], eps, true).ToList();
 

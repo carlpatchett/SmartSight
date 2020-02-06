@@ -34,7 +34,13 @@ namespace SmartSightFrontEnd
             this.InitializeComponent();
 
             mMonitor.MarkerDetected += this.mMonitor_MarkerDetected;
+
             mMonitor.HandDetected += this.mMonitor_HandDetected;
+            mMonitor.OneFingerDetected += this.mMonitor_OneFingerDetected;
+            mMonitor.TwoFingersDetected += this.mMonitor_TwoFingersDetected;
+            mMonitor.ThreeFingersDetected += this.mMonitor_ThreeFingersDetected;
+            mMonitor.FourFingersDetected += this.mMonitor_FourFingersDetected;
+            mMonitor.FiveFingersDetected += this.mMonitor_FiveFingersDetected;
 
             this.BeginMonitoring();
         }
@@ -48,16 +54,25 @@ namespace SmartSightFrontEnd
             {
                 if (mMonitor.StartCameraMonitoring())
                 {
+                    var delay = false;
                     while (true)
                     {
                         if (mMonitor.HasImg)
                         {
+                            if (delay)
+                                return;
+
+                            delay = true;
+
                             this.Dispatcher.Invoke(() =>
                             {
                                 this.WebcamDisplay.Source = mMonitor.CameraImgAsBitmap;
                                 this.GestureThresholdDisplay.Source = mMonitor.GestureThresholdImgAsBitmap;
                                 this.WebcamDisplay.InvalidateVisual();
                             });
+
+                            System.Threading.Thread.Sleep(100);
+                            delay = false;
                         }
                     }
                 };
@@ -83,6 +98,51 @@ namespace SmartSightFrontEnd
             this.Dispatcher.Invoke(() =>
             {
                 this.GestureDisplay.Source = mMonitor.GestureImgAsBitmap;
+                this.GestureDisplay.InvalidateVisual();
+            });
+        }
+
+        private void mMonitor_OneFingerDetected(object sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.FingersDetectedDisplay.Text = "One Finger Detected";
+                this.GestureDisplay.InvalidateVisual();
+            });
+        }
+
+        private void mMonitor_TwoFingersDetected(object sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.FingersDetectedDisplay.Text = "Two Fingers Detected";
+                this.GestureDisplay.InvalidateVisual();
+            });
+        }
+
+        private void mMonitor_ThreeFingersDetected(object sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.FingersDetectedDisplay.Text = "Three Fingers Detected";
+                this.GestureDisplay.InvalidateVisual();
+            });
+        }
+
+        private void mMonitor_FourFingersDetected(object sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.FingersDetectedDisplay.Text = "Four Fingers Detected";
+                this.GestureDisplay.InvalidateVisual();
+            });
+        }
+
+        private void mMonitor_FiveFingersDetected(object sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.FingersDetectedDisplay.Text = "Five Fingers Detected";
                 this.GestureDisplay.InvalidateVisual();
             });
         }
