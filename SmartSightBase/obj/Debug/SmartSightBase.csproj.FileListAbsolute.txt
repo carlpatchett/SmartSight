@@ -49,3 +49,15 @@ D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csprojAssemblyRefere
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\Numpy.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\Python.Included.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\Python.Runtime.NETStandard.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Data.Common.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Diagnostics.StackTrace.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Diagnostics.Tracing.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Globalization.Extensions.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.IO.Compression.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Net.Http.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Net.Sockets.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Runtime.Serialization.Primitives.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Security.Cryptography.Algorithms.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Security.SecureString.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Threading.Overlapped.dll
+D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Xml.XPath.XDocument.dll

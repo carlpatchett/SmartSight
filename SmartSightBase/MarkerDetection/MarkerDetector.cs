@@ -33,7 +33,7 @@ namespace SmartSightBase
 
         public Mat DetectedMarkerImg { get; set; } = new Mat();
 
-        public MarkerDetector(CameraCalibration calibration, Monitor monitor)
+        public MarkerDetector(CameraCalibration calibration)
         {
             camMatrix = new Mat(3, 3, MatType.CV_32F, calibration.GetIntrinsic().Data[0]);
             mDistCoeff = new Mat(4, 1, MatType.CV_32F, calibration.GetDistorsion().Data[0]);
@@ -55,7 +55,7 @@ namespace SmartSightBase
                                                1, 1, 1, 0, 0 };
         }
 
-        public void FindMarkers(Monitor monitor, bool showImg)
+        public void FindMarkers(IMonitor monitor, bool showImg)
         {
             this.PrepareImage(monitor.CameraImg, mGrayscale);
 

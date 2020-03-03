@@ -66,8 +66,36 @@ namespace SmartSightFrontEnd
 
                             this.Dispatcher.Invoke(() =>
                             {
-                                this.WebcamDisplay.Source = mMonitor.CameraImgAsBitmap;
-                                this.GestureThresholdDisplay.Source = mMonitor.GestureThresholdImgAsBitmap;
+                                if (mMonitor.CameraImg != null)
+                                {
+                                    using (var ms = mMonitor.CameraImg.ToMemoryStream())
+                                    {
+                                        var bitmapImg = new BitmapImage();
+
+                                        bitmapImg.BeginInit();
+                                        bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
+                                        bitmapImg.StreamSource = ms;
+                                        bitmapImg.EndInit();
+
+                                        this.WebcamDisplay.Source = bitmapImg;
+                                    };
+                                }
+
+                                if (mMonitor.GestureImg != null)
+                                {
+                                    using (var ms = mMonitor.GestureThresholdImg.ToMemoryStream())
+                                    {
+                                        var bitmapImg = new BitmapImage();
+
+                                        bitmapImg.BeginInit();
+                                        bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
+                                        bitmapImg.StreamSource = ms;
+                                        bitmapImg.EndInit();
+
+                                        this.GestureThresholdDisplay.Source = bitmapImg;
+                                    };
+                                }
+
                                 this.WebcamDisplay.InvalidateVisual();
                             });
 
@@ -88,7 +116,23 @@ namespace SmartSightFrontEnd
         {
             this.Dispatcher.Invoke(() =>
             {
-                this.DetectionDisplay.Source = mMonitor.DetectedMarkerImgAsBitmap;
+                if (mMonitor.CameraImg == null)
+                {
+                    return;
+                }
+
+                using (var ms = mMonitor.CameraImg.ToMemoryStream())
+                {
+                    var bitmapImg = new BitmapImage();
+
+                    bitmapImg.BeginInit();
+                    bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImg.StreamSource = ms;
+                    bitmapImg.EndInit();
+
+                    this.DetectionDisplay.Source = bitmapImg;
+                };
+
                 this.DetectionDisplay.InvalidateVisual();
             });
         }
@@ -97,7 +141,23 @@ namespace SmartSightFrontEnd
         {
             this.Dispatcher.Invoke(() =>
             {
-                this.GestureDisplay.Source = mMonitor.GestureImgAsBitmap;
+                if (mMonitor.GestureImg == null)
+                {
+                    return;
+                }
+
+                using (var ms = mMonitor.GestureImg.ToMemoryStream())
+                {
+                    var bitmapImg = new BitmapImage();
+
+                    bitmapImg.BeginInit();
+                    bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImg.StreamSource = ms;
+                    bitmapImg.EndInit();
+
+                    this.GestureDisplay.Source = bitmapImg;
+                };
+
                 this.GestureDisplay.InvalidateVisual();
             });
         }

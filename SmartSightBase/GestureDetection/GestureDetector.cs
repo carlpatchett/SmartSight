@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Media3D;
 using OpenCvSharp;
 
 namespace SmartSightBase.GestureDetection
 {
     public class GestureDetector
     {
-        private readonly Monitor mMonitor;
-        private Window mWindow;
+        private readonly IMonitor mMonitor;
         private bool mEventDelay;
 
         private List<Point> mFingers = new List<Point>();
@@ -20,16 +18,15 @@ namespace SmartSightBase.GestureDetection
         private double mAverageDefectDistance;
 
 
-        public event EventHandler GestureDetected = (s ,e) => { };
+        public event EventHandler GestureDetected = (s, e) => { };
         public event EventHandler HandDetected = (s, e) => { };
-
         public event EventHandler FiveFingersDetected = (s, e) => { };
         public event EventHandler FourFingersDetected = (s, e) => { };
         public event EventHandler ThreeFingersDetected = (s, e) => { };
         public event EventHandler TwoFingersDetected = (s, e) => { };
         public event EventHandler OneFingerDetected = (s, e) => { };
 
-        public GestureDetector(Monitor monitor)
+        public GestureDetector(IMonitor monitor)
         {
             mMonitor = monitor;
 
@@ -49,6 +46,9 @@ namespace SmartSightBase.GestureDetection
 
         public void StartGestureRecognition()
         {
+            mFingerDistances.Clear();
+            mFingers.Clear();
+
             var mat = mMonitor.CameraImg;
             Mat newMat = new Mat();
             mat.CopyTo(newMat);
@@ -63,7 +63,12 @@ namespace SmartSightBase.GestureDetection
 
             Mat mask2 = new Mat();
             hsvColourSpace.CopyTo(mask2);
+
+            // Dynamic HSV value assignment
             Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { Cv2.GetTrackbarPos("H", "HSV Window"), Cv2.GetTrackbarPos("S", "HSV Window"), Cv2.GetTrackbarPos("V", "HSV Window") }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+
+            // Static values
+            //Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { 0, 0, 200 }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
 
             var kernal_ellipse = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5));
             var kernal_square = Cv2.GetStructuringElement(MorphShapes.Rect, new Size(11, 11));
@@ -129,6 +134,9 @@ namespace SmartSightBase.GestureDetection
 
             var cnts = contours[ci];
 
+            // Draw the contours for debugging purposes
+            Cv2.DrawContours(mat, contours, ci, Scalar.Red);
+
             var hull = Cv2.ConvexHull(cnts);
             var hull2 = Cv2.ConvexHullIndices(cnts);
 
@@ -162,6 +170,7 @@ namespace SmartSightBase.GestureDetection
             for (var i = 0; i < farDefects.Count; i++)
             {
                 var x = farDefects[i];
+
                 var distance = Math.Sqrt(Math.Pow(x.Item1.X - mCenterMass.X, 2) + Math.Pow(x.Item1.Y - mCenterMass.Y, 2));
                 distanceBetweenDefectsToCenter.Add(distance);
             }
@@ -176,9 +185,9 @@ namespace SmartSightBase.GestureDetection
             mAverageDefectDistance = sortedDetectsDistances.Average();
 
             var finger = new List<Point>();
-            for (var i = 0; i < hull.Length-1; i++)
+            for (var i = 0; i < hull.Length - 1; i++)
             {
-                if ((Math.Abs(hull[i].X - hull[i+1].X) > 20))
+                if ((Math.Abs(hull[i].X - hull[i + 1].X) > 20))
                 {
                     // || (Math.Abs(hull[i].Y - hull[i+1].Y) > 20)
                     finger.Add(hull[i]);
@@ -186,17 +195,13 @@ namespace SmartSightBase.GestureDetection
             }
 
             var sortedFinger = finger.OrderBy(val => val.Y);
-            //if (sortedFinger.Count() <= 5)
-            //{
-            //    return;
-            //}
-
             var goodFingers = new List<Point>();
             var allFingers = sortedFinger.Take(5);
+
             foreach (var tempFinger in allFingers)
             {
-                if (tempFinger.Y < mCenterMass.Y + 25)
-                { 
+                if (tempFinger.Y < mCenterMass.Y + 40)
+                {
                     goodFingers.Add(tempFinger);
                 }
             }
@@ -223,12 +228,12 @@ namespace SmartSightBase.GestureDetection
             var result = 0;
             for (var i = 0; i < mFingers.Count; i++)
             {
-                Cv2.Circle(newMat, mFingers[i], 3, Scalar.Blue);
-                Cv2.PutText(newMat, "Finger", mFingers[i], HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
-
-                result++;
-                if (mFingerDistances[i] > mAverageDefectDistance + 50)
+                if (mFingerDistances[i] <= mAverageDefectDistance + 50)
                 {
+                    Cv2.Circle(newMat, mFingers[i], 3, Scalar.Blue);
+                    Cv2.PutText(newMat, "Finger", mFingers[i], HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
+
+                    result++;
                 }
             }
 
@@ -237,7 +242,7 @@ namespace SmartSightBase.GestureDetection
                 mEventDelay = true;
                 HandDetected.Invoke(this, new EventArgs());
 
-                switch(mFingers.Count)
+                switch (mFingers.Count)
                 {
                     case 0:
                         break;
@@ -260,7 +265,7 @@ namespace SmartSightBase.GestureDetection
 
                 Task.Run(() =>
                 {
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(1500);
                     mEventDelay = false;
                 });
             }

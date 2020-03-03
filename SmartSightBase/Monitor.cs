@@ -4,17 +4,18 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using OpenCvSharp;
 using SmartSightBase.GestureDetection;
 
 namespace SmartSightBase
 {
-    public class Monitor
+    public class Monitor : IMonitor
     {
         private readonly static float[] mCameraMatrix = new float[9] { 612.84f, 0.0f, 326.46f, 0.0f, 612.84f, 289.42f, 0.0f, 0.0f, 1.0f };
         private static Mat mCameraImg = new Mat();
         private bool mMarkerDetectionInProgress;
+        private Tuple<string, int> mCurrentDetectionCount = new Tuple<string, int>("None", 0);
+        private int mMaxDetectionCount = 10;
 
         public VideoCapture mCapture;
 
@@ -34,7 +35,7 @@ namespace SmartSightBase
             this.MarkerDetector = new MarkerDetector(new CameraCalibration(mCameraMatrix[0],
                                                                            mCameraMatrix[4],
                                                                            mCameraMatrix[2],
-                                                                           mCameraMatrix[5]), this);
+                                                                           mCameraMatrix[5]));
 
             this.GestureDetector = new GestureDetector(this);
 
@@ -55,51 +56,7 @@ namespace SmartSightBase
         /// </summary>
         public Mat CameraImg => mCameraImg;
 
-        /// <summary>
-        /// Gets the current MarkerDetector Capture Image as a <see cref="BitmapImage"/>.
-        /// </summary>
-        public BitmapImage CameraImgAsBitmap
-        {
-            get
-            {
-                using (var ms = mCameraImg.ToMemoryStream())
-                {
-                    var bitmapImg = new BitmapImage();
-
-                    bitmapImg.BeginInit();
-                    bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImg.StreamSource = ms;
-                    bitmapImg.EndInit();
-
-                    return bitmapImg;
-                };
-            }
-        }
-
         public Mat GestureImg => this.GestureDetector.GestureImg;
-
-        public BitmapImage GestureImgAsBitmap
-        {
-            get
-            {
-                if (this.GestureImg == null)
-                {
-                    return null;
-                }
-
-                using (var ms = this.GestureImg.ToMemoryStream())
-                {
-                    var bitmapImg = new BitmapImage();
-
-                    bitmapImg.BeginInit();
-                    bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImg.StreamSource = ms;
-                    bitmapImg.EndInit();
-
-                    return bitmapImg;
-                }
-            }
-        }
 
         /// <summary>
         /// Gets the current GestureDetector Theshold Image.
@@ -107,56 +64,9 @@ namespace SmartSightBase
         public Mat GestureThresholdImg => this.GestureDetector.ThreshholdImg;
 
         /// <summary>
-        /// Gets the current GestureDetector Threshold Image as a <see cref="BitmapImage"/>.
-        /// </summary>
-        public BitmapImage GestureThresholdImgAsBitmap
-        {
-            get
-            {
-                if (this.GestureThresholdImg == null)
-                {
-                    return null;
-                }
-
-                using (var ms = this.GestureThresholdImg.ToMemoryStream())
-                {
-                    var bitmapImg = new BitmapImage();
-
-                    bitmapImg.BeginInit();
-                    bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImg.StreamSource = ms;
-                    bitmapImg.EndInit();
-
-                    return bitmapImg;
-                }
-            }
-        }
-
-        /// <summary>
         ///  Gets the current MarkerDetector Detected Marker Image.
         /// </summary>
         public Mat DetectedMarkerImg => this.MarkerDetector.DetectedMarkerImg;
-
-        /// <summary>
-        /// Gets the current MarkerDetector Detected Marker Image as a <see cref="BitmapImage"/>.
-        /// </summary>
-        public BitmapImage DetectedMarkerImgAsBitmap
-        {
-            get
-            {
-                using (var ms = this.DetectedMarkerImg.ToMemoryStream())
-                {
-                    var bitmapImg = new BitmapImage();
-
-                    bitmapImg.BeginInit();
-                    bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImg.StreamSource = ms;
-                    bitmapImg.EndInit();
-
-                    return bitmapImg;
-                };
-            }
-        }
 
         /// <summary>
         /// Gets/Sets whether the camera image exists.
@@ -208,8 +118,8 @@ namespace SmartSightBase
             {
                 while (true)
                 {
-                    while(!this.HasImg)
-                    { 
+                    while (!this.HasImg)
+                    {
                         System.Threading.Thread.Sleep(100);
                     }
 
@@ -247,46 +157,156 @@ namespace SmartSightBase
         /// <param name="e">The event parameters.</param>
         private void mMarkerDetector_MarkerDetected(object sender, EventArgs e)
         {
-            // Re-raise the event
-            MarkerDetected.Invoke(this, new EventArgs());
+            if (String.Equals(mCurrentDetectionCount.Item1, "Marker"))
+            {
+                // We previously detected a marker, lets see the frame count
+                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
+                {
+                    // If we have over 30 detections, reset and raise the event.
+                    MarkerDetected.Invoke(this, new EventArgs());
+                    mCurrentDetectionCount = new Tuple<string, int>("Marker", 0);
+                }
+                else
+                {
+                    // Otherwise increase the count
+                    var currentCount = mCurrentDetectionCount.Item2;
+                    currentCount++;
+                    mCurrentDetectionCount = new Tuple<string, int>("Marker", currentCount);
+                }
+            }
+
+            // This is the first time detecting a marker, set the count
+            mCurrentDetectionCount = new Tuple<string, int>("Marker", 1);
         }
 
         private void mGestureDetector_HandDetected(object sender, EventArgs e)
         {
-            // Re-raise the event
-            HandDetected.Invoke(this, new EventArgs());
+            //if (String.Equals(mCurrentDetectionCount.Item1, "Hand"))
+            //{
+            //    if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
+            //    {
+            //        HandDetected.Invoke(this, new EventArgs());
+            //        mCurrentDetectionCount = new Tuple<string, int>("Hand", 0);
+            //    }
+            //    else
+            //    {
+            //        var currentCount = mCurrentDetectionCount.Item2;
+            //        currentCount++;
+            //        mCurrentDetectionCount = new Tuple<string, int>("Hand", currentCount);
+            //    }
+            //}
+
+            //mCurrentDetectionCount = new Tuple<string, int>("Hand", 1);
         }
         private void mGestureDetector_OneFingerDetected(object sender, EventArgs e)
         {
-            // Re-raise the event
             OneFingerDetected.Invoke(this, new EventArgs());
+
+            if (String.Equals(mCurrentDetectionCount.Item1, "OneFinger"))
+            {
+                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
+                {
+                    //OneFingerDetected.Invoke(this, new EventArgs());
+                    mCurrentDetectionCount = new Tuple<string, int>("OneFinger", 0);
+                }
+                else
+                {
+                    var currentCount = mCurrentDetectionCount.Item2;
+                    currentCount++;
+                    mCurrentDetectionCount = new Tuple<string, int>("OneFinger", currentCount);
+                }
+            }
+
+            mCurrentDetectionCount = new Tuple<string, int>("OneFinger", 1);
         }
 
         private void mGestureDetector_TwoFingersDetected(object sender, EventArgs e)
         {
-            // Re-raise the event
             TwoFingersDetected.Invoke(this, new EventArgs());
+
+            if (String.Equals(mCurrentDetectionCount.Item1, "TwoFingers"))
+            {
+                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
+                {
+                    //TwoFingersDetected.Invoke(this, new EventArgs());
+                    mCurrentDetectionCount = new Tuple<string, int>("TwoFingers", 0);
+                }
+                else
+                {
+                    var currentCount = mCurrentDetectionCount.Item2;
+                    currentCount++;
+                    mCurrentDetectionCount = new Tuple<string, int>("TwoFingers", currentCount);
+                }
+            }
+
+            mCurrentDetectionCount = new Tuple<string, int>("TwoFingers", 1);
         }
 
         private void mGestureDetector_ThreeFingersDetected(object sender, EventArgs e)
         {
-            // Re-raise the event
             ThreeFingersDetected.Invoke(this, new EventArgs());
+
+            if (String.Equals(mCurrentDetectionCount.Item1, "ThreeFingers"))
+            {
+                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
+                {
+                    //ThreeFingersDetected.Invoke(this, new EventArgs());
+                    mCurrentDetectionCount = new Tuple<string, int>("ThreeFingers", 0);
+                }
+                else
+                {
+                    var currentCount = mCurrentDetectionCount.Item2;
+                    currentCount++;
+                    mCurrentDetectionCount = new Tuple<string, int>("ThreeFingers", currentCount);
+                }
+            }
+
+            mCurrentDetectionCount = new Tuple<string, int>("ThreeFingers", 1);
         }
 
         private void mGestureDetector_FourFingersDetected(object sender, EventArgs e)
         {
-            // Re-raise the event
             FourFingersDetected.Invoke(this, new EventArgs());
+
+            if (String.Equals(mCurrentDetectionCount.Item1, "FourFingers"))
+            {
+                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
+                {
+                    //FourFingersDetected.Invoke(this, new EventArgs());
+                    mCurrentDetectionCount = new Tuple<string, int>("FourFingers", 0);
+                }
+                else
+                {
+                    var currentCount = mCurrentDetectionCount.Item2;
+                    currentCount++;
+                    mCurrentDetectionCount = new Tuple<string, int>("FourFingers", currentCount);
+                }
+            }
+
+            mCurrentDetectionCount = new Tuple<string, int>("FourFingers", 1);
         }
 
 
         private void mGestureDetector_FiveFingersDetected(object sender, EventArgs e)
         {
-            // Re-raise the event
             FiveFingersDetected.Invoke(this, new EventArgs());
+
+            if (String.Equals(mCurrentDetectionCount.Item1, "FiveFingers"))
+            {
+                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
+                {
+                    //FiveFingersDetected.Invoke(this, new EventArgs());
+                    mCurrentDetectionCount = new Tuple<string, int>("FiveFingers", 0);
+                }
+                else
+                {
+                    var currentCount = mCurrentDetectionCount.Item2;
+                    currentCount++;
+                    mCurrentDetectionCount = new Tuple<string, int>("FiveFingers", currentCount);
+                }
+            }
+
+            mCurrentDetectionCount = new Tuple<string, int>("FiveFingers", 1);
         }
-
-
     }
 }
