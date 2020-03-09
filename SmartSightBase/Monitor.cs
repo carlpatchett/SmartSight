@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenCvSharp;
 using SmartSightBase.GestureDetection;
@@ -14,8 +15,21 @@ namespace SmartSightBase
         private readonly static float[] mCameraMatrix = new float[9] { 612.84f, 0.0f, 326.46f, 0.0f, 612.84f, 289.42f, 0.0f, 0.0f, 1.0f };
         private static Mat mCameraImg = new Mat();
         private bool mMarkerDetectionInProgress;
-        private Tuple<string, int> mCurrentDetectionCount = new Tuple<string, int>("None", 0);
-        private int mMaxDetectionCount = 10;
+
+        private int mOneFingerDetectionCount = 0;
+        private int mTwoFingersDetectionCount = 0;
+        private int mThreeFingersDetectionCount = 0;
+        private int mFourFingersDetectionCount = 0;
+        private int mFiveFingersDetectionCount = 0;
+
+        private CancellationTokenSource mMarkerDetectionToken = new CancellationTokenSource();
+        private CancellationTokenSource mGestureDetectionToken = new CancellationTokenSource();
+
+        private CancellationTokenSource mOneFingerDetectionToken = new CancellationTokenSource();
+        private CancellationTokenSource mTwoFingersDetectionToken = new CancellationTokenSource();
+        private CancellationTokenSource mThreeFingersDetectionToken = new CancellationTokenSource();
+        private CancellationTokenSource mFourFingersDetectionToken = new CancellationTokenSource();
+        private CancellationTokenSource mFiveFingersDetectionToken = new CancellationTokenSource();
 
         public VideoCapture mCapture;
 
@@ -75,6 +89,18 @@ namespace SmartSightBase
 
         #endregion
 
+        public void StartImageCapture()
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    mCameraImg = mCapture.RetrieveMat();
+                    this.HasImg = true;
+                }
+            });
+        }
+
         /// <summary>
         /// Starts monitoring the Camera the given index.
         /// </summary>
@@ -90,15 +116,11 @@ namespace SmartSightBase
             this.GestureDetector.ThreeFingersDetected += this.mGestureDetector_ThreeFingersDetected;
             this.GestureDetector.FourFingersDetected += this.mGestureDetector_FourFingersDetected;
             this.GestureDetector.FiveFingersDetected += this.mGestureDetector_FiveFingersDetected;
-
-            Task.Run(() =>
+            
+            if (!this.HasImg)
             {
-                while (true)
-                {
-                    mCameraImg = mCapture.RetrieveMat();
-                    this.HasImg = true;
-                }
-            });
+                this.StartImageCapture();
+            }
 
             Task.Run(() =>
             {
@@ -106,13 +128,13 @@ namespace SmartSightBase
                 {
                     while (!this.HasImg)
                     {
-                        System.Threading.Thread.Sleep(100);
+                        Thread.Sleep(100);
                     }
 
                     this.StartMarkerDetection();
                     Cv2.WaitKey(1);
                 }
-            });
+            }, mMarkerDetectionToken.Token);
 
             Task.Run(() =>
             {
@@ -120,15 +142,35 @@ namespace SmartSightBase
                 {
                     while (!this.HasImg)
                     {
-                        System.Threading.Thread.Sleep(100);
+                        Thread.Sleep(100);
                     }
 
                     this.GestureDetector.StartGestureRecognition();
                     Cv2.WaitKey(1);
                 }
-            });
+            }, mGestureDetectionToken.Token);
 
             return true;
+        }
+
+        /// <summary>
+        /// Cancels camera based monitoring.
+        /// </summary>
+        public void StopCameraMonitoring()
+        {
+            this.MarkerDetector.MarkerDetected -= this.mMarkerDetector_MarkerDetected;
+
+            this.GestureDetector.HandDetected -= this.mGestureDetector_HandDetected;
+            this.GestureDetector.OneFingerDetected -= this.mGestureDetector_OneFingerDetected;
+            this.GestureDetector.TwoFingersDetected -= this.mGestureDetector_TwoFingersDetected;
+            this.GestureDetector.ThreeFingersDetected -= this.mGestureDetector_ThreeFingersDetected;
+            this.GestureDetector.FourFingersDetected -= this.mGestureDetector_FourFingersDetected;
+            this.GestureDetector.FiveFingersDetected -= this.mGestureDetector_FiveFingersDetected;
+
+            mMarkerDetectionToken.Cancel();
+            mGestureDetectionToken.Cancel();
+
+            GestureDetector.GestureRecognitionSetup = false;
         }
 
         private void StartMarkerDetection()
@@ -150,6 +192,51 @@ namespace SmartSightBase
             });
         }
 
+        private void StartOneFingerDetectionCountdown()
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(2500);
+                mOneFingerDetectionCount = 0;
+            }, mOneFingerDetectionToken.Token);
+        }
+
+        private void StartTwoFingersDetectionCountdown()
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(2500);
+                mTwoFingersDetectionCount = 0;
+            }, mTwoFingersDetectionToken.Token);
+        }
+
+        private void StartThreeFingersDetectionCountdown()
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(2500);
+                mThreeFingersDetectionCount = 0;
+            }, mThreeFingersDetectionToken.Token);
+        }
+
+        private void StartFourFingersDetectionCountdown()
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(2500);
+                mFourFingersDetectionCount = 0;
+            }, mFourFingersDetectionToken.Token);
+        }
+
+        private void StartFiveFingersDetectionCountdown()
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(2500);
+                mFiveFingersDetectionCount = 0;
+            }, mFiveFingersDetectionToken.Token);
+        }
+
         /// <summary>
         /// Handles the MarkerDetected event from the <see cref="MarkerDetector"/> class.
         /// </summary>
@@ -157,156 +244,114 @@ namespace SmartSightBase
         /// <param name="e">The event parameters.</param>
         private void mMarkerDetector_MarkerDetected(object sender, EventArgs e)
         {
-            if (String.Equals(mCurrentDetectionCount.Item1, "Marker"))
-            {
-                // We previously detected a marker, lets see the frame count
-                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
-                {
-                    // If we have over 30 detections, reset and raise the event.
-                    MarkerDetected.Invoke(this, new EventArgs());
-                    mCurrentDetectionCount = new Tuple<string, int>("Marker", 0);
-                }
-                else
-                {
-                    // Otherwise increase the count
-                    var currentCount = mCurrentDetectionCount.Item2;
-                    currentCount++;
-                    mCurrentDetectionCount = new Tuple<string, int>("Marker", currentCount);
-                }
-            }
-
-            // This is the first time detecting a marker, set the count
-            mCurrentDetectionCount = new Tuple<string, int>("Marker", 1);
+            // If we have over 30 detections, reset and raise the event.
+            MarkerDetected.Invoke(this, new EventArgs());
         }
 
         private void mGestureDetector_HandDetected(object sender, EventArgs e)
         {
-            //if (String.Equals(mCurrentDetectionCount.Item1, "Hand"))
-            //{
-            //    if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
-            //    {
-            //        HandDetected.Invoke(this, new EventArgs());
-            //        mCurrentDetectionCount = new Tuple<string, int>("Hand", 0);
-            //    }
-            //    else
-            //    {
-            //        var currentCount = mCurrentDetectionCount.Item2;
-            //        currentCount++;
-            //        mCurrentDetectionCount = new Tuple<string, int>("Hand", currentCount);
-            //    }
-            //}
-
-            //mCurrentDetectionCount = new Tuple<string, int>("Hand", 1);
+            //To do: Implement
         }
+
         private void mGestureDetector_OneFingerDetected(object sender, EventArgs e)
         {
-            OneFingerDetected.Invoke(this, new EventArgs());
-
-            if (String.Equals(mCurrentDetectionCount.Item1, "OneFinger"))
+            if (mOneFingerDetectionCount == 0)
             {
-                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
-                {
-                    //OneFingerDetected.Invoke(this, new EventArgs());
-                    mCurrentDetectionCount = new Tuple<string, int>("OneFinger", 0);
-                }
-                else
-                {
-                    var currentCount = mCurrentDetectionCount.Item2;
-                    currentCount++;
-                    mCurrentDetectionCount = new Tuple<string, int>("OneFinger", currentCount);
-                }
+                this.StartOneFingerDetectionCountdown();
             }
 
-            mCurrentDetectionCount = new Tuple<string, int>("OneFinger", 1);
+            if (mOneFingerDetectionCount >= 8)
+            {
+                OneFingerDetected.Invoke(this, new EventArgs());
+                HandDetected.Invoke(this, new EventArgs());
+                mOneFingerDetectionCount = 0;
+                mOneFingerDetectionToken.Cancel();
+            }
+            else
+            {
+                mOneFingerDetectionCount++;
+            }
         }
 
         private void mGestureDetector_TwoFingersDetected(object sender, EventArgs e)
         {
-            TwoFingersDetected.Invoke(this, new EventArgs());
-
-            if (String.Equals(mCurrentDetectionCount.Item1, "TwoFingers"))
+            if (mTwoFingersDetectionCount == 0)
             {
-                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
-                {
-                    //TwoFingersDetected.Invoke(this, new EventArgs());
-                    mCurrentDetectionCount = new Tuple<string, int>("TwoFingers", 0);
-                }
-                else
-                {
-                    var currentCount = mCurrentDetectionCount.Item2;
-                    currentCount++;
-                    mCurrentDetectionCount = new Tuple<string, int>("TwoFingers", currentCount);
-                }
+                this.StartTwoFingersDetectionCountdown();
             }
 
-            mCurrentDetectionCount = new Tuple<string, int>("TwoFingers", 1);
+            if (mTwoFingersDetectionCount >= 8)
+            {
+                TwoFingersDetected.Invoke(this, new EventArgs());
+                HandDetected.Invoke(this, new EventArgs());
+                mTwoFingersDetectionCount = 0;
+                mTwoFingersDetectionToken.Cancel();
+            }
+            else
+            {
+                mTwoFingersDetectionCount++;
+            }
         }
 
         private void mGestureDetector_ThreeFingersDetected(object sender, EventArgs e)
         {
-            ThreeFingersDetected.Invoke(this, new EventArgs());
-
-            if (String.Equals(mCurrentDetectionCount.Item1, "ThreeFingers"))
+            if (mThreeFingersDetectionCount == 0)
             {
-                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
-                {
-                    //ThreeFingersDetected.Invoke(this, new EventArgs());
-                    mCurrentDetectionCount = new Tuple<string, int>("ThreeFingers", 0);
-                }
-                else
-                {
-                    var currentCount = mCurrentDetectionCount.Item2;
-                    currentCount++;
-                    mCurrentDetectionCount = new Tuple<string, int>("ThreeFingers", currentCount);
-                }
+                this.StartThreeFingersDetectionCountdown();
             }
 
-            mCurrentDetectionCount = new Tuple<string, int>("ThreeFingers", 1);
+            if (mThreeFingersDetectionCount >= 8)
+            {
+                ThreeFingersDetected.Invoke(this, new EventArgs());
+                HandDetected.Invoke(this, new EventArgs());
+                mThreeFingersDetectionCount = 0;
+                mThreeFingersDetectionToken.Cancel();
+            }
+            else
+            {
+                mThreeFingersDetectionCount++;
+            }
         }
 
         private void mGestureDetector_FourFingersDetected(object sender, EventArgs e)
         {
-            FourFingersDetected.Invoke(this, new EventArgs());
-
-            if (String.Equals(mCurrentDetectionCount.Item1, "FourFingers"))
+            if (mFourFingersDetectionCount == 0)
             {
-                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
-                {
-                    //FourFingersDetected.Invoke(this, new EventArgs());
-                    mCurrentDetectionCount = new Tuple<string, int>("FourFingers", 0);
-                }
-                else
-                {
-                    var currentCount = mCurrentDetectionCount.Item2;
-                    currentCount++;
-                    mCurrentDetectionCount = new Tuple<string, int>("FourFingers", currentCount);
-                }
+                this.StartFourFingersDetectionCountdown();
             }
 
-            mCurrentDetectionCount = new Tuple<string, int>("FourFingers", 1);
+            if (mFourFingersDetectionCount >= 8)
+            {
+                FourFingersDetected.Invoke(this, new EventArgs());
+                HandDetected.Invoke(this, new EventArgs());
+                mFourFingersDetectionCount = 0;
+                mFourFingersDetectionToken.Cancel();
+            }
+            else
+            {
+                mFourFingersDetectionCount++;
+            }
         }
 
 
         private void mGestureDetector_FiveFingersDetected(object sender, EventArgs e)
         {
-            FiveFingersDetected.Invoke(this, new EventArgs());
-
-            if (String.Equals(mCurrentDetectionCount.Item1, "FiveFingers"))
+            if (mFiveFingersDetectionCount == 0)
             {
-                if (mCurrentDetectionCount.Item2 > mMaxDetectionCount)
-                {
-                    //FiveFingersDetected.Invoke(this, new EventArgs());
-                    mCurrentDetectionCount = new Tuple<string, int>("FiveFingers", 0);
-                }
-                else
-                {
-                    var currentCount = mCurrentDetectionCount.Item2;
-                    currentCount++;
-                    mCurrentDetectionCount = new Tuple<string, int>("FiveFingers", currentCount);
-                }
+                this.StartFiveFingersDetectionCountdown();
             }
 
-            mCurrentDetectionCount = new Tuple<string, int>("FiveFingers", 1);
+            if (mFiveFingersDetectionCount >= 8)
+            {
+                FiveFingersDetected.Invoke(this, new EventArgs());
+                HandDetected.Invoke(this, new EventArgs());
+                mFiveFingersDetectionCount = 0;
+                mFiveFingersDetectionToken.Cancel();
+            }
+            else
+            {
+                mFiveFingersDetectionCount++;
+            }
         }
     }
 }

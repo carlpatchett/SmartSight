@@ -57,17 +57,24 @@ namespace SmartSightBase
 
         public void FindMarkers(IMonitor monitor, bool showImg)
         {
-            this.PrepareImage(monitor.CameraImg, mGrayscale);
+            try
+            {
+                this.PrepareImage(monitor.CameraImg, mGrayscale);
 
-            this.PerformThreshold(mGrayscale, mThresholdImg);
+                this.PerformThreshold(mGrayscale, mThresholdImg);
 
-            this.FindContours(mThresholdImg, mContours, mGrayscale.Cols / 5);
+                this.FindContours(mThresholdImg, mContours, mGrayscale.Cols / 5);
 
-            this.FindCandidates(mContours, mDetectedMarkers);
+                this.FindCandidates(mContours, mDetectedMarkers);
 
-            this.GoodMarkers = this.RecognizedMarkers(mGrayscale, mDetectedMarkers, showImg);
+                this.GoodMarkers = this.RecognizedMarkers(mGrayscale, mDetectedMarkers, showImg);
 
-            this.EstimatePosition(this.GoodMarkers);
+                this.EstimatePosition(this.GoodMarkers);
+            }
+            catch
+            {
+                // POKEMON CATCH
+            }
         }
 
         protected void PrepareImage(Mat bgrMat, Mat grayscale)

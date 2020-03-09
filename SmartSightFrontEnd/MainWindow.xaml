@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SmartSightFrontEnd"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="1600
-       ">
+        Title="MainWindow" Height="800" Width="1000">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -47,5 +46,7 @@
         <Image x:Name="GestureDisplay" Grid.Column="1" Grid.Row="3" />
 
         <TextBlock Grid.Column="2" x:Name="FingersDetectedDisplay" />
+
+        <Button Content="Calibrate Gesture Recognition" Grid.Column="2" Grid.Row="2" Click="Button_Click" />
     </Grid>
 </Window>

@@ -28,6 +28,7 @@ namespace SmartSightFrontEnd
     public partial class MainWindow : System.Windows.Window
     {
         private readonly Monitor mMonitor = new Monitor();
+        private bool mMonitoringStarted;
 
         public MainWindow()
         {
@@ -42,7 +43,22 @@ namespace SmartSightFrontEnd
             mMonitor.FourFingersDetected += this.mMonitor_FourFingersDetected;
             mMonitor.FiveFingersDetected += this.mMonitor_FiveFingersDetected;
 
-            this.BeginMonitoring();
+            mMonitor.StartImageCapture();
+        }
+
+        private void SetupGestureRecognition()
+        {
+            var setupSuccessful = mMonitor.GestureDetector.SetUpGestureRecognition();
+
+            if (!setupSuccessful)
+            {
+                this.SetupGestureRecognition();
+            }
+            else
+            {
+                this.BeginMonitoring();
+                mMonitoringStarted = true;
+            }
         }
 
         /// <summary>
@@ -205,6 +221,16 @@ namespace SmartSightFrontEnd
                 this.FingersDetectedDisplay.Text = "Five Fingers Detected";
                 this.GestureDisplay.InvalidateVisual();
             });
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (mMonitoringStarted)
+            {
+                mMonitor.StopCameraMonitoring();
+            }
+
+            SetupGestureRecognition();
         }
     }
 }

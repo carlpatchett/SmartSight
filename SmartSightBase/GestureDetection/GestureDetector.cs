@@ -17,6 +17,9 @@ namespace SmartSightBase.GestureDetection
         private Point mCenterMass;
         private double mAverageDefectDistance;
 
+        private int mH = 0;
+        private int mS = 0;
+        private int mV = 0;
 
         public event EventHandler GestureDetected = (s, e) => { };
         public event EventHandler HandDetected = (s, e) => { };
@@ -30,21 +33,52 @@ namespace SmartSightBase.GestureDetection
         {
             mMonitor = monitor;
 
-            Cv2.NamedWindow("HSV Window");
+            //Cv2.NamedWindow("HSV Window");
 
-            var h = 0;
-            var s = 0;
-            var v = 0;
-            Cv2.CreateTrackbar("H", "HSV Window", ref h, 255);
-            Cv2.CreateTrackbar("S", "HSV Window", ref s, 255);
-            Cv2.CreateTrackbar("V", "HSV Window", ref v, 255);
+            //var h = 0;
+            //var s = 0;
+            //var v = 0;
+            //Cv2.CreateTrackbar("H", "HSV Window", ref h, 255);
+            //Cv2.CreateTrackbar("S", "HSV Window", ref s, 255);
+            //Cv2.CreateTrackbar("V", "HSV Window", ref v, 255);
         }
+
+        public bool GestureRecognitionSetup { get; set; }
 
         public Mat GestureImg { get; set; }
 
         public Mat ThreshholdImg { get; set; }
 
-        public void StartGestureRecognition()
+        public bool SetUpGestureRecognition()
+        {
+            mH = 0;
+            mS = 0;
+            mV = 0;
+
+            // Start with a black image, and slowly allow more through the filter until we get a solid recognition
+            for (var h = 255; h > 0; h -= 25)
+            {
+                for (var s = 255; s > 0; s -= 25)
+                {
+                    for (var v = 255; v > 0; v -= 25)
+                    {
+                        if (this.StartGestureRecognition(h, s, v))
+                        {
+                            mH = h;
+                            mS = s;
+                            mV = v;
+
+                            this.GestureRecognitionSetup = true;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool StartGestureRecognition(int h = 0, int s = 0, int v = 0)
         {
             mFingerDistances.Clear();
             mFingers.Clear();
@@ -64,11 +98,20 @@ namespace SmartSightBase.GestureDetection
             Mat mask2 = new Mat();
             hsvColourSpace.CopyTo(mask2);
 
-            // Dynamic HSV value assignment
-            Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { Cv2.GetTrackbarPos("H", "HSV Window"), Cv2.GetTrackbarPos("S", "HSV Window"), Cv2.GetTrackbarPos("V", "HSV Window") }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+            if (mH != 0 || mS != 0 || mV != 0)
+            {
+                // If we have a saved preset, use it
+                Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { mH, mS, mV }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+            }
+            else
+            {
+                Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { h, s, v }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+            }
 
-            // Static values
-            //Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { 0, 0, 200 }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+            //{
+            //    // Dynamic HSV value assignment
+            //    Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { Cv2.GetTrackbarPos("H", "HSV Window"), Cv2.GetTrackbarPos("S", "HSV Window"), Cv2.GetTrackbarPos("V", "HSV Window") }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+            //}
 
             var kernal_ellipse = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5));
             var kernal_square = Cv2.GetStructuringElement(MorphShapes.Rect, new Size(11, 11));
@@ -129,7 +172,7 @@ namespace SmartSightBase.GestureDetection
             // Only continue if we have contours to process.
             if (contours.Length <= 0)
             {
-                return;
+                return false;
             }
 
             var cnts = contours[ci];
@@ -179,7 +222,7 @@ namespace SmartSightBase.GestureDetection
 
             if (sortedDetectsDistances.Count() <= 0)
             {
-                return;
+                return false;
             }
 
             mAverageDefectDistance = sortedDetectsDistances.Average();
@@ -187,7 +230,7 @@ namespace SmartSightBase.GestureDetection
             var finger = new List<Point>();
             for (var i = 0; i < hull.Length - 1; i++)
             {
-                if ((Math.Abs(hull[i].X - hull[i + 1].X) > 20))
+                if ((Math.Abs(hull[i].X - hull[i + 1].X) > 20) || (Math.Abs(hull[i].Y - hull[i + 1].Y) > 20))
                 {
                     // || (Math.Abs(hull[i].Y - hull[i+1].Y) > 20)
                     finger.Add(hull[i]);
@@ -214,10 +257,15 @@ namespace SmartSightBase.GestureDetection
                 mFingerDistances.Add(distance);
             }
 
-            this.GetRecognisedGesture(mat);
+            if (mFingers.Count > 0)
+            {
+                return this.GetRecognisedGesture(mat);
+            }
+
+            return false;
         }
 
-        public void GetRecognisedGesture(Mat renderMat)
+        public bool GetRecognisedGesture(Mat renderMat)
         {
             Mat newMat = new Mat();
             renderMat.CopyTo(newMat);
@@ -239,38 +287,57 @@ namespace SmartSightBase.GestureDetection
 
             if (result > 0 && !mEventDelay)
             {
-                mEventDelay = true;
-                HandDetected.Invoke(this, new EventArgs());
-
-                switch (mFingers.Count)
+                if (this.GestureRecognitionSetup)
                 {
-                    case 0:
-                        break;
-                    case 1:
-                        OneFingerDetected.Invoke(this, new EventArgs());
-                        break;
-                    case 2:
-                        TwoFingersDetected.Invoke(this, new EventArgs());
-                        break;
-                    case 3:
-                        ThreeFingersDetected.Invoke(this, new EventArgs());
-                        break;
-                    case 4:
-                        FourFingersDetected.Invoke(this, new EventArgs());
-                        break;
-                    case 5:
-                        FiveFingersDetected.Invoke(this, new EventArgs());
-                        break;
+                    mEventDelay = true;
+                    HandDetected.Invoke(this, new EventArgs());
+
+                    switch (mFingers.Count)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                            OneFingerDetected.Invoke(this, new EventArgs());
+                            break;
+                        case 2:
+                            TwoFingersDetected.Invoke(this, new EventArgs());
+                            break;
+                        case 3:
+                            ThreeFingersDetected.Invoke(this, new EventArgs());
+                            break;
+                        case 4:
+                            FourFingersDetected.Invoke(this, new EventArgs());
+                            break;
+                        case 5:
+                            FiveFingersDetected.Invoke(this, new EventArgs());
+                            break;
+                    }
+
+                    Task.Run(() =>
+                    {
+                        System.Threading.Thread.Sleep(200);
+                        mEventDelay = false;
+                    });
                 }
-
-                Task.Run(() =>
-                {
-                    System.Threading.Thread.Sleep(1500);
-                    mEventDelay = false;
-                });
             }
 
             this.GestureImg = newMat;
+
+            if (!GestureRecognitionSetup && result != 0)
+            {
+                if (mFingers.Count == 5)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

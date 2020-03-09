@@ -45,7 +45,6 @@ D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.pdb
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.dll.config
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.dll
 D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.dll
-D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csprojAssemblyReference.cache
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\Numpy.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\Python.Included.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\Python.Runtime.NETStandard.dll
@@ -61,3 +60,4 @@ D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Security.Cryptography.Algori
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Security.SecureString.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Threading.Overlapped.dll
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\System.Xml.XPath.XDocument.dll
+D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csprojAssemblyReference.cache
