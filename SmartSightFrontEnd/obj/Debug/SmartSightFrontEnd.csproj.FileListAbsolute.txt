@@ -25,7 +25,6 @@ D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\MainWindow.baml
 D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\SmartSightFrontEnd.g.resources
 D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\SmartSightFrontEnd.Properties.Resources.resources
 D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\SmartSightFrontEnd.csproj.GenerateResource.cache
-D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\SmartSightFrontEnd.csproj.CoreCompileInputs.cache
 D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\SmartSightFrontEnd.exe
 D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\SmartSightFrontEnd.pdb
 D:\Repos\SmartSight\SmartSightFrontEnd\obj\Debug\SmartSightFrontEnd.csproj.CopyComplete

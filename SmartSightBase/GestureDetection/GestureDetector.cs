@@ -32,15 +32,6 @@ namespace SmartSightBase.GestureDetection
         public GestureDetector(IMonitor monitor)
         {
             mMonitor = monitor;
-
-            //Cv2.NamedWindow("HSV Window");
-
-            //var h = 0;
-            //var s = 0;
-            //var v = 0;
-            //Cv2.CreateTrackbar("H", "HSV Window", ref h, 255);
-            //Cv2.CreateTrackbar("S", "HSV Window", ref s, 255);
-            //Cv2.CreateTrackbar("V", "HSV Window", ref v, 255);
         }
 
         public bool GestureRecognitionSetup { get; set; }
@@ -49,27 +40,51 @@ namespace SmartSightBase.GestureDetection
 
         public Mat ThreshholdImg { get; set; }
 
-        public bool SetUpGestureRecognition()
+        public RecognitionSetupType SetupType { get; set; }
+
+        public bool SetUpGestureRecognition(bool automatic)
         {
             mH = 0;
             mS = 0;
             mV = 0;
 
-            // Start with a black image, and slowly allow more through the filter until we get a solid recognition
-            for (var h = 255; h > 0; h -= 25)
-            {
-                for (var s = 255; s > 0; s -= 25)
-                {
-                    for (var v = 255; v > 0; v -= 25)
-                    {
-                        if (this.StartGestureRecognition(h, s, v))
-                        {
-                            mH = h;
-                            mS = s;
-                            mV = v;
+            this.GestureRecognitionSetup = false;
 
-                            this.GestureRecognitionSetup = true;
-                            return true;
+            if (!automatic)
+            {
+                Cv2.NamedWindow("HSV Window");
+
+                var h = 0;
+                var s = 0;
+                var v = 0;
+                Cv2.CreateTrackbar("H", "HSV Window", ref h, 255);
+                Cv2.CreateTrackbar("S", "HSV Window", ref s, 255);
+                Cv2.CreateTrackbar("V", "HSV Window", ref v, 255);
+
+                this.SetupType = RecognitionSetupType.Manual;
+                this.GestureRecognitionSetup = true;
+                return true;
+            }
+            else
+            {
+                this.SetupType = RecognitionSetupType.Automatic;
+
+                // Start with a black image, and slowly allow more through the filter until we get a solid recognition
+                for (var h = 0; h < 255; h += 15)
+                {
+                    for (var s = 0; s < 255; s += 15)
+                    {
+                        for (var v = 0; v < 255; v += 15)
+                        {
+                            if (this.StartGestureRecognition(h, s, v))
+                            {
+                                mH = h;
+                                mS = s;
+                                mV = v;
+
+                                this.GestureRecognitionSetup = true;
+                                return true;
+                            }
                         }
                     }
                 }
@@ -98,20 +113,21 @@ namespace SmartSightBase.GestureDetection
             Mat mask2 = new Mat();
             hsvColourSpace.CopyTo(mask2);
 
-            if (mH != 0 || mS != 0 || mV != 0)
+            if (this.SetupType == RecognitionSetupType.Automatic)
             {
-                // If we have a saved preset, use it
-                Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { mH, mS, mV }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+                if (mH != 0 || mS != 0 || mV != 0)
+                {
+                    Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { mH, mS, mV }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+                }
+                else
+                {
+                    Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { h, s, v }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+                }
             }
             else
             {
-                Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { h, s, v }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
+                Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { Cv2.GetTrackbarPos("H", "HSV Window"), Cv2.GetTrackbarPos("S", "HSV Window"), Cv2.GetTrackbarPos("V", "HSV Window") }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
             }
-
-            //{
-            //    // Dynamic HSV value assignment
-            //    Cv2.InRange(hsvColourSpace, InputArray.Create(new int[] { Cv2.GetTrackbarPos("H", "HSV Window"), Cv2.GetTrackbarPos("S", "HSV Window"), Cv2.GetTrackbarPos("V", "HSV Window") }), InputArray.Create(new int[] { 190, 255, 255 }), mask2);
-            //}
 
             var kernal_ellipse = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5));
             var kernal_square = Cv2.GetStructuringElement(MorphShapes.Rect, new Size(11, 11));
@@ -176,9 +192,6 @@ namespace SmartSightBase.GestureDetection
             }
 
             var cnts = contours[ci];
-
-            // Draw the contours for debugging purposes
-            Cv2.DrawContours(mat, contours, ci, Scalar.Red);
 
             var hull = Cv2.ConvexHull(cnts);
             var hull2 = Cv2.ConvexHullIndices(cnts);
@@ -259,16 +272,19 @@ namespace SmartSightBase.GestureDetection
 
             if (mFingers.Count > 0)
             {
-                return this.GetRecognisedGesture(mat);
+                return this.GetRecognisedGesture(mat, contours, ci);
             }
 
             return false;
         }
 
-        public bool GetRecognisedGesture(Mat renderMat)
+        public bool GetRecognisedGesture(Mat renderMat, Point[][] contours, int ci)
         {
             Mat newMat = new Mat();
             renderMat.CopyTo(newMat);
+
+            // Draw the contours for debugging purposes
+            Cv2.DrawContours(newMat, contours, ci, Scalar.Red);
 
             Cv2.Circle(newMat, mCenterMass, 3, Scalar.Red);
             Cv2.PutText(newMat, "Center", mCenterMass, HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
@@ -276,7 +292,7 @@ namespace SmartSightBase.GestureDetection
             var result = 0;
             for (var i = 0; i < mFingers.Count; i++)
             {
-                if (mFingerDistances[i] <= mAverageDefectDistance + 50)
+                if (mFingerDistances[i] <= mAverageDefectDistance + 25)
                 {
                     Cv2.Circle(newMat, mFingers[i], 3, Scalar.Blue);
                     Cv2.PutText(newMat, "Finger", mFingers[i], HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
@@ -339,5 +355,11 @@ namespace SmartSightBase.GestureDetection
                 return false;
             }
         }
+    }
+
+    public enum RecognitionSetupType
+    {
+        Automatic,
+        Manual
     }
 }

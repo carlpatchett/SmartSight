@@ -17,6 +17,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -28,7 +29,7 @@
                Width="400">
         </Image>
 
-        <TextBlock Grid.Column="1"
+        <TextBlock x:Name="MarkerDetectedLabel" Grid.Column="1"
                    Text="Detected Marker" />
 
         <Image Grid.Column="1"
@@ -39,14 +40,16 @@
 
         <TextBlock Text="Gesture Recognition (Threshold)" Grid.Row="2"/>
 
-        <Image x:Name="GestureThresholdDisplay" Grid.Row="3" />
+        <Image x:Name="GestureThresholdDisplay" Grid.Row="4" />
 
         <TextBlock Text="Gesture Recognition" Grid.Column="1" Grid.Row="2" />
 
-        <Image x:Name="GestureDisplay" Grid.Column="1" Grid.Row="3" />
+        <Image x:Name="GestureDisplay" Grid.Column="1" Grid.Row="4" />
 
         <TextBlock Grid.Column="2" x:Name="FingersDetectedDisplay" />
 
-        <Button Content="Calibrate Gesture Recognition" Grid.Column="2" Grid.Row="2" Click="Button_Click" />
+        <Button Content="Automatic Gesture Calibration" Grid.Column="2" Grid.Row="2" Click="Button_Click" />
+        <Button Content="Manual Gesture Calibration" Grid.Column="2" Grid.Row="3" Click="Button_Click_1" />
+
     </Grid>
 </Window>

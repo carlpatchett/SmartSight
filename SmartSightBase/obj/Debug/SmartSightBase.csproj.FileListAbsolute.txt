@@ -39,7 +39,6 @@ D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.Extensions.pdb
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.Extensions.xml
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.UserInterface.pdb
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\OpenCvSharp.UserInterface.xml
-D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csproj.CoreCompileInputs.cache
 D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.csproj.CopyComplete
 D:\Repos\SmartSight\SmartSightBase\obj\Debug\SmartSightBase.pdb
 D:\Repos\SmartSight\SmartSightBase\bin\Debug\SmartSightBase.dll.config

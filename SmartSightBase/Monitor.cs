@@ -34,6 +34,7 @@ namespace SmartSightBase
         public VideoCapture mCapture;
 
         public event EventHandler MarkerDetected = (s, e) => { };
+        public event EventHandler<float> MarkerAngle = (s, e) => { };
         public event EventHandler HandDetected = (s, e) => { };
         public event EventHandler OneFingerDetected = (s, e) => { };
         public event EventHandler TwoFingersDetected = (s, e) => { };
@@ -109,7 +110,7 @@ namespace SmartSightBase
         public bool StartCameraMonitoring()
         {
             this.MarkerDetector.MarkerDetected += this.mMarkerDetector_MarkerDetected;
-
+            this.MarkerDetector.MarkerAngle += this.mMarkerDetector_MarkerAngle;
             this.GestureDetector.HandDetected += this.mGestureDetector_HandDetected;
             this.GestureDetector.OneFingerDetected += this.mGestureDetector_OneFingerDetected;
             this.GestureDetector.TwoFingersDetected += this.mGestureDetector_TwoFingersDetected;
@@ -246,6 +247,11 @@ namespace SmartSightBase
         {
             // If we have over 30 detections, reset and raise the event.
             MarkerDetected.Invoke(this, new EventArgs());
+        }
+
+        private void mMarkerDetector_MarkerAngle(object sender, float f)
+        {
+            MarkerAngle.Invoke(this, f);
         }
 
         private void mGestureDetector_HandDetected(object sender, EventArgs e)

@@ -35,6 +35,7 @@ namespace SmartSightFrontEnd
             this.InitializeComponent();
 
             mMonitor.MarkerDetected += this.mMonitor_MarkerDetected;
+            mMonitor.MarkerAngle += this.mMonitor_MarkerAngleDetected;
 
             mMonitor.HandDetected += this.mMonitor_HandDetected;
             mMonitor.OneFingerDetected += this.mMonitor_OneFingerDetected;
@@ -46,13 +47,13 @@ namespace SmartSightFrontEnd
             mMonitor.StartImageCapture();
         }
 
-        private void SetupGestureRecognition()
+        private void SetupGestureRecognition(bool automatic)
         {
-            var setupSuccessful = mMonitor.GestureDetector.SetUpGestureRecognition();
+            var setupSuccessful = mMonitor.GestureDetector.SetUpGestureRecognition(automatic);
 
             if (!setupSuccessful)
             {
-                this.SetupGestureRecognition();
+                this.SetupGestureRecognition(automatic);
             }
             else
             {
@@ -137,7 +138,7 @@ namespace SmartSightFrontEnd
                     return;
                 }
 
-                using (var ms = mMonitor.CameraImg.ToMemoryStream())
+                using (var ms = mMonitor.DetectedMarkerImg.ToMemoryStream())
                 {
                     var bitmapImg = new BitmapImage();
 
@@ -150,6 +151,14 @@ namespace SmartSightFrontEnd
                 };
 
                 this.DetectionDisplay.InvalidateVisual();
+            });
+        }
+
+        private void mMonitor_MarkerAngleDetected(object sender, float f)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.MarkerDetectedLabel.Text = $"Marker Detected - Angle: {f}";
             });
         }
 
@@ -230,7 +239,18 @@ namespace SmartSightFrontEnd
                 mMonitor.StopCameraMonitoring();
             }
 
-            SetupGestureRecognition();
+            SetupGestureRecognition(true);
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            if (mMonitoringStarted)
+            {
+                mMonitor.StopCameraMonitoring();
+            }
+
+            SetupGestureRecognition(false);
+
         }
     }
 }

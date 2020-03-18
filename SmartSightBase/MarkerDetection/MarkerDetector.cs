@@ -11,7 +11,7 @@ namespace SmartSightBase
     public class MarkerDetector
     {
         private float mMinContourLengthAllowed = 100.0f;
-        private Size mMarkerSize = new Size(100,100);
+        private Size mMarkerSize = new Size(100, 100);
         private int mCellSize = 100 / 7;
         private Mat camMatrix = new Mat();
         private Mat mDistCoeff = new Mat();
@@ -24,6 +24,7 @@ namespace SmartSightBase
         private List<Point2f> mMarkerCorners2d = new List<Point2f>();
 
         public event EventHandler MarkerDetected = (s, e) => { };
+        public event EventHandler<float> MarkerAngle = (s, e) => { };
 
         public List<List<Point2f>> GoodMarkers { get; set; } = new List<List<Point2f>>();
 
@@ -138,7 +139,7 @@ namespace SmartSightBase
                     var inputArray = InputArray.Create(contours[i]);
                     var outputArray = OutputArray.Create(contours[i]);
                 }
-                catch(ArgumentNullException)
+                catch (ArgumentNullException)
                 {
                     // Chomp chomp, no idea
                 }
@@ -271,7 +272,7 @@ namespace SmartSightBase
                     for (var x = 0; x < 5; x++)
                     {
                         var cellX = (x + 1) * mCellSize;
-                        var cellY = (y + 1) * mCellSize; 
+                        var cellY = (y + 1) * mCellSize;
                         var cell = canonicalMarker.SubMat(new Rect(cellX, cellY, mCellSize, mCellSize));
 
                         var nZ = Cv2.CountNonZero(cell);
@@ -353,13 +354,21 @@ namespace SmartSightBase
                         Cv2.Line(this.DetectedMarkerImg, (int)int_current_mark[1].X, (int)int_current_mark[1].Y, (int)int_current_mark[2].X, (int)int_current_mark[2].Y, color, thickness, LineTypes.AntiAlias);
                         Cv2.Line(this.DetectedMarkerImg, (int)int_current_mark[2].X, (int)int_current_mark[2].Y, (int)int_current_mark[3].X, (int)int_current_mark[3].Y, color, thickness, LineTypes.AntiAlias);
                         Cv2.Line(this.DetectedMarkerImg, (int)int_current_mark[3].X, (int)int_current_mark[3].Y, (int)int_current_mark[0].X, (int)int_current_mark[0].Y, color, thickness, LineTypes.AntiAlias);
+
+                        // Determine angle
+                        MarkerAngle.Invoke(this, (float)this.AngleBetween(int_current_mark[0], int_current_mark[1]));
+                        MarkerDetected.Invoke(this, new EventArgs());
                     }
                 }
-
-                MarkerDetected.Invoke(this, new EventArgs());
             }
 
             return this.GoodMarkers;
+        }
+
+        private double AngleBetween(Point2f point1, Point2f point2)
+        {
+            var angle = Math.Atan2(point1.Y - point2.Y, (point1.X - point2.X));
+            return angle * 180 / Math.PI;
         }
 
         protected Mat Rotate(Mat matrix)
