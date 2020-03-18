@@ -271,7 +271,7 @@ namespace SmartSightBase
                 OneFingerDetected.Invoke(this, new EventArgs());
                 HandDetected.Invoke(this, new EventArgs());
                 mOneFingerDetectionCount = 0;
-                mOneFingerDetectionToken.Cancel();
+                this.CancelAllThreadTokens();
             }
             else
             {
@@ -291,7 +291,7 @@ namespace SmartSightBase
                 TwoFingersDetected.Invoke(this, new EventArgs());
                 HandDetected.Invoke(this, new EventArgs());
                 mTwoFingersDetectionCount = 0;
-                mTwoFingersDetectionToken.Cancel();
+                this.CancelAllThreadTokens();
             }
             else
             {
@@ -311,7 +311,7 @@ namespace SmartSightBase
                 ThreeFingersDetected.Invoke(this, new EventArgs());
                 HandDetected.Invoke(this, new EventArgs());
                 mThreeFingersDetectionCount = 0;
-                mThreeFingersDetectionToken.Cancel();
+                this.CancelAllThreadTokens();
             }
             else
             {
@@ -331,7 +331,7 @@ namespace SmartSightBase
                 FourFingersDetected.Invoke(this, new EventArgs());
                 HandDetected.Invoke(this, new EventArgs());
                 mFourFingersDetectionCount = 0;
-                mFourFingersDetectionToken.Cancel();
+                this.CancelAllThreadTokens();
             }
             else
             {
@@ -352,12 +352,21 @@ namespace SmartSightBase
                 FiveFingersDetected.Invoke(this, new EventArgs());
                 HandDetected.Invoke(this, new EventArgs());
                 mFiveFingersDetectionCount = 0;
-                mFiveFingersDetectionToken.Cancel();
+                this.CancelAllThreadTokens();
             }
             else
             {
                 mFiveFingersDetectionCount++;
             }
+        }
+
+        private void CancelAllThreadTokens()
+        {
+            mOneFingerDetectionToken.Cancel();
+            mTwoFingersDetectionToken.Cancel();
+            mThreeFingersDetectionToken.Cancel();
+            mFourFingersDetectionToken.Cancel();
+            mFiveFingersDetectionToken.Cancel();
         }
     }
 }

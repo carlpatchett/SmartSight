@@ -256,7 +256,7 @@ namespace SmartSightBase.GestureDetection
 
             foreach (var tempFinger in allFingers)
             {
-                if (tempFinger.Y < mCenterMass.Y + 40)
+                if (tempFinger.Y < mCenterMass.Y)
                 {
                     goodFingers.Add(tempFinger);
                 }
@@ -292,7 +292,7 @@ namespace SmartSightBase.GestureDetection
             var result = 0;
             for (var i = 0; i < mFingers.Count; i++)
             {
-                if (mFingerDistances[i] <= mAverageDefectDistance + 25)
+                if (mFingerDistances[i] <= mAverageDefectDistance + 15)
                 {
                     Cv2.Circle(newMat, mFingers[i], 3, Scalar.Blue);
                     Cv2.PutText(newMat, "Finger", mFingers[i], HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
