@@ -33,6 +33,8 @@ namespace SmartSightBase
 
         public VideoCapture mCapture;
 
+        private bool mMarkerDetected;
+
         public event EventHandler MarkerDetected = (s, e) => { };
         public event EventHandler<float> MarkerAngle = (s, e) => { };
         public event EventHandler HandDetected = (s, e) => { };
@@ -247,6 +249,14 @@ namespace SmartSightBase
         {
             // If we have over 30 detections, reset and raise the event.
             MarkerDetected.Invoke(this, new EventArgs());
+
+            mMarkerDetected = true;
+
+            Task.Run(() =>
+            {
+                Thread.Sleep(2000);
+                mMarkerDetected = false;
+            });
         }
 
         private void mMarkerDetector_MarkerAngle(object sender, float f)
@@ -261,6 +271,11 @@ namespace SmartSightBase
 
         private void mGestureDetector_OneFingerDetected(object sender, EventArgs e)
         {
+            if (mMarkerDetected)
+            {
+                return;
+            }
+
             if (mOneFingerDetectionCount == 0)
             {
                 this.StartOneFingerDetectionCountdown();
@@ -281,6 +296,11 @@ namespace SmartSightBase
 
         private void mGestureDetector_TwoFingersDetected(object sender, EventArgs e)
         {
+            if (mMarkerDetected)
+            {
+                return;
+            }
+
             if (mTwoFingersDetectionCount == 0)
             {
                 this.StartTwoFingersDetectionCountdown();
@@ -301,6 +321,11 @@ namespace SmartSightBase
 
         private void mGestureDetector_ThreeFingersDetected(object sender, EventArgs e)
         {
+            if (mMarkerDetected)
+            {
+                return;
+            }
+
             if (mThreeFingersDetectionCount == 0)
             {
                 this.StartThreeFingersDetectionCountdown();
@@ -321,6 +346,11 @@ namespace SmartSightBase
 
         private void mGestureDetector_FourFingersDetected(object sender, EventArgs e)
         {
+            if (mMarkerDetected)
+            {
+                return;
+            }
+
             if (mFourFingersDetectionCount == 0)
             {
                 this.StartFourFingersDetectionCountdown();
@@ -342,6 +372,11 @@ namespace SmartSightBase
 
         private void mGestureDetector_FiveFingersDetected(object sender, EventArgs e)
         {
+            if (mMarkerDetected)
+            {
+                return;
+            }
+
             if (mFiveFingersDetectionCount == 0)
             {
                 this.StartFiveFingersDetectionCountdown();

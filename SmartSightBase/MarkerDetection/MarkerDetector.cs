@@ -23,6 +23,9 @@ namespace SmartSightBase
         private List<Point3f> mMarkerCorners3d = new List<Point3f>();
         private List<Point2f> mMarkerCorners2d = new List<Point2f>();
 
+        private bool mAngleRaised;
+        private bool mMarkerRaised;
+
         public event EventHandler MarkerDetected = (s, e) => { };
         public event EventHandler<float> MarkerAngle = (s, e) => { };
 
@@ -355,9 +358,28 @@ namespace SmartSightBase
                         Cv2.Line(this.DetectedMarkerImg, (int)int_current_mark[2].X, (int)int_current_mark[2].Y, (int)int_current_mark[3].X, (int)int_current_mark[3].Y, color, thickness, LineTypes.AntiAlias);
                         Cv2.Line(this.DetectedMarkerImg, (int)int_current_mark[3].X, (int)int_current_mark[3].Y, (int)int_current_mark[0].X, (int)int_current_mark[0].Y, color, thickness, LineTypes.AntiAlias);
 
-                        // Determine angle
-                        MarkerAngle.Invoke(this, (float)this.AngleBetween(int_current_mark[0], int_current_mark[1]));
-                        MarkerDetected.Invoke(this, new EventArgs());
+                        if (!mAngleRaised)
+                        {
+                            // Determine angle
+                            Task.Run(() =>
+                            {
+                                mAngleRaised = true;
+                                MarkerAngle.Invoke(this, (float)this.AngleBetween(int_current_mark[0], int_current_mark[1]));
+                                System.Threading.Thread.Sleep(100);
+                                mAngleRaised = false;
+                            });
+                        }
+
+                        if (!mMarkerRaised)
+                        {
+                            Task.Run(() =>
+                            {
+                                mMarkerRaised = true;
+                                MarkerDetected.Invoke(this, new EventArgs());
+                                System.Threading.Thread.Sleep(100);
+                                mMarkerRaised = false;
+                            });
+                        }
                     }
                 }
             }

@@ -70,11 +70,11 @@ namespace SmartSightBase.GestureDetection
                 this.SetupType = RecognitionSetupType.Automatic;
 
                 // Start with a black image, and slowly allow more through the filter until we get a solid recognition
-                for (var h = 0; h < 255; h += 15)
+                for (var s = 255; s > 0; s -= 15)
                 {
-                    for (var s = 0; s < 255; s += 15)
+                    for (var h = 255; h > 0; h -= 15)
                     {
-                        for (var v = 0; v < 255; v += 15)
+                        for (var v = 255; v > 0; v -= 15)
                         {
                             if (this.StartGestureRecognition(h, s, v))
                             {
@@ -245,7 +245,6 @@ namespace SmartSightBase.GestureDetection
             {
                 if ((Math.Abs(hull[i].X - hull[i + 1].X) > 20) || (Math.Abs(hull[i].Y - hull[i + 1].Y) > 20))
                 {
-                    // || (Math.Abs(hull[i].Y - hull[i+1].Y) > 20)
                     finger.Add(hull[i]);
                 }
             }
@@ -256,7 +255,7 @@ namespace SmartSightBase.GestureDetection
 
             foreach (var tempFinger in allFingers)
             {
-                if (tempFinger.Y < mCenterMass.Y)
+                if (tempFinger.Y < mCenterMass.Y + 10)
                 {
                     goodFingers.Add(tempFinger);
                 }

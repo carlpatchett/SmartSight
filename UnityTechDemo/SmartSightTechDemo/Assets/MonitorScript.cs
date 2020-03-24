@@ -13,6 +13,7 @@ public class MonitorScript : MonoBehaviour
     GameObject mRoomLight;
     GameObject mBedLight;
     GameObject mKitchenLight;
+    GameObject mRadio;
 
     public bool mGestureRecognitionSetUp;
 
@@ -20,8 +21,7 @@ public class MonitorScript : MonoBehaviour
     private bool delay;
     private bool monitoringStarted;
 
-    private LastUsedLight mLastUsedLight;
-    private DetectionType mDetectionType;
+    private LastUsedObject mLastUsedObject;
 
     // Start is called before the first frame update
     void Start()
@@ -38,8 +38,10 @@ public class MonitorScript : MonoBehaviour
         mRoomLight = GameObject.Find("RoomLight");
         mBedLight = GameObject.Find("BedLight");
         mKitchenLight = GameObject.Find("KitchenLight");
+        mRadio = GameObject.Find("Radio");
 
-        GameObject.Find("UI").transform.GetChild(1).GetComponent<Button>().enabled = false;
+        GameObject.Find("SetupGRBtn").transform.GetChild(1).GetComponent<Button>().enabled = true;
+        GameObject.Find("SetupGRBtn1").transform.GetChild(1).GetComponent<Button>().enabled = true;
 
         mMonitor.StartImageCapture();
     }
@@ -99,21 +101,23 @@ public class MonitorScript : MonoBehaviour
             Cv2.ImShow("Gesture Recognition Img", mMonitor.GestureImg);
         }
 
-        GameObject.Find("DetectionType").GetComponent<Text>().text = mDetectionType.ToString();
-        GameObject.Find("LastUsedLight").GetComponent<Text>().text = mLastUsedLight.ToString();
+        GameObject.Find("LastUsedLight").GetComponent<Text>().text = mLastUsedObject.ToString();
 
         var lightIntensityText = GameObject.Find("LightIntensity");
 
-        switch(mLastUsedLight)
+        switch(mLastUsedObject)
         {
-            case LastUsedLight.BedLight:
+            case LastUsedObject.BedLight:
                 lightIntensityText.GetComponent<Text>().text = mBedLight.GetComponent<Light>().intensity.ToString();
                 break;
-            case LastUsedLight.KitchenLight:
+            case LastUsedObject.KitchenLight:
                 lightIntensityText.GetComponent<Text>().text = mKitchenLight.GetComponent<Light>().intensity.ToString();
                 break;
-            case LastUsedLight.RoomLight:
+            case LastUsedObject.RoomLight:
                 lightIntensityText.GetComponent<Text>().text = mRoomLight.GetComponent<Light>().intensity.ToString();
+                break;
+            case LastUsedObject.Radio:
+                lightIntensityText.GetComponent<Text>().text = mRadio.GetComponent<AudioSource>().volume.ToString();
                 break;
         }
     }
@@ -125,90 +129,64 @@ public class MonitorScript : MonoBehaviour
 
     private void mMonitor_MarkerAngle(object sender, float e)
     {
-        switch(mLastUsedLight)
+        switch(mLastUsedObject)
         {
-            case LastUsedLight.BedLight:
-                mBedLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 180, -180);
+            case LastUsedObject.BedLight:
+                mBedLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 90, -90);
                 break;
-            case LastUsedLight.KitchenLight:
-                mKitchenLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 180, -180);
+            case LastUsedObject.KitchenLight:
+                mKitchenLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 90, -90);
                 break;
-            case LastUsedLight.RoomLight:
-                mRoomLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 180, -180);
+            case LastUsedObject.RoomLight:
+                mRoomLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 90, -90);
+                break;
+            case LastUsedObject.Radio:
+                mRadio.GetComponent<AudioSource>().volume = this.NormalizeValue(e, 90, -90);
                 break;
         }
     }
 
     private void mMonitor_OneFingerDetected(object sender, EventArgs e)
     {
-        if (mDetectionType == DetectionType.Marker)
-        {
-            return;
-        }
-
         var light = mBedLight.GetComponent<Light>();
         mBedLight.GetComponent<Light>().enabled = !mBedLight.GetComponent<Light>().enabled;
 
-        mLastUsedLight = LastUsedLight.BedLight;
+        mLastUsedObject = LastUsedObject.BedLight;
     }
 
     private void mMonitor_TwoFingersDetected(object sender, EventArgs e)
     {
-        if (mDetectionType == DetectionType.Marker)
-        {
-            return;
-        }
-
         var light = mKitchenLight.GetComponent<Light>();
         mKitchenLight.GetComponent<Light>().enabled = !mKitchenLight.GetComponent<Light>().enabled;
 
-        mLastUsedLight = LastUsedLight.KitchenLight;
+        mLastUsedObject = LastUsedObject.KitchenLight;
     }
 
     private void mMonitor_ThreeFingersDetected(object sender, EventArgs e)
     {
-        if (mDetectionType == DetectionType.Marker)
-        {
-            return;
-        }
-
         var light = mRoomLight.GetComponent<Light>();
         mRoomLight.GetComponent<Light>().enabled = !mRoomLight.GetComponent<Light>().enabled;
 
-        mLastUsedLight = LastUsedLight.RoomLight;
+        mLastUsedObject = LastUsedObject.RoomLight;
     }
 
     private void mMonitor_FourFingersDetected(object sender, EventArgs e)
     {
-        //var light = mRoomLight.GetComponent<Light>();
-        //mRoomLight.GetComponent<Light>().color = Color.red;
+        mLastUsedObject = LastUsedObject.Radio;
     }
 
     private void mMonitor_FiveFingersDetected(object sender, EventArgs e)
     {
-        if (mDetectionType == DetectionType.Gesture)
-        {
-            mDetectionType = DetectionType.Marker;
-        }
-        else
-        {
-            mDetectionType = DetectionType.Gesture;
-        }
 
         //var light = mRoomLight.GetComponent<Light>();
         //mRoomLight.GetComponent<Light>().enabled = !mRoomLight.GetComponent<Light>().enabled;
     }
 }
 
-public enum LastUsedLight
+public enum LastUsedObject
 {
     BedLight,
     RoomLight,
-    KitchenLight
-}
-
-public enum DetectionType
-{
-    Gesture,
-    Marker
+    KitchenLight,
+    Radio
 }

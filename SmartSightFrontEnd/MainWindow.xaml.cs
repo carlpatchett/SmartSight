@@ -98,7 +98,7 @@ namespace SmartSightFrontEnd
                                     };
                                 }
 
-                                if (mMonitor.GestureImg != null)
+                                if (mMonitor.GestureThresholdImg != null)
                                 {
                                     using (var ms = mMonitor.GestureThresholdImg.ToMemoryStream())
                                     {
@@ -110,6 +110,21 @@ namespace SmartSightFrontEnd
                                         bitmapImg.EndInit();
 
                                         this.GestureThresholdDisplay.Source = bitmapImg;
+                                    };
+                                }
+
+                                if (mMonitor.GestureImg != null)
+                                {
+                                    using (var ms = mMonitor.GestureImg.ToMemoryStream())
+                                    {
+                                        var bitmapImg = new BitmapImage();
+
+                                        bitmapImg.BeginInit();
+                                        bitmapImg.CacheOption = BitmapCacheOption.OnLoad;
+                                        bitmapImg.StreamSource = ms;
+                                        bitmapImg.EndInit();
+
+                                        this.GestureDisplay.Source = bitmapImg;
                                     };
                                 }
 
@@ -250,7 +265,6 @@ namespace SmartSightFrontEnd
             }
 
             SetupGestureRecognition(false);
-
         }
     }
 }

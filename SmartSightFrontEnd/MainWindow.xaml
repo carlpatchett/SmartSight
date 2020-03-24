@@ -49,7 +49,7 @@
         <TextBlock Grid.Column="2" x:Name="FingersDetectedDisplay" />
 
         <Button Content="Automatic Gesture Calibration" Grid.Column="2" Grid.Row="2" Click="Button_Click" />
-        <Button Content="Manual Gesture Calibration" Grid.Column="2" Grid.Row="3" Click="Button_Click_1" />
 
+        <Button Content="Manual Gesture Calibration" Grid.Column="2" Grid.Row="3" Click="Button_Click_1" />
     </Grid>
 </Window>
