@@ -29,8 +29,18 @@
                Width="400">
         </Image>
 
-        <TextBlock x:Name="MarkerDetectedLabel" Grid.Column="1"
-                   Text="Detected Marker" />
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="MarkerDetectedLabel" Grid.Column="0"
+                        Text="Detected Marker" />
+
+            <TextBlock x:Name="MarkerDetectedAngleLabel" Grid.Column="1"
+                        Text="Detected Marker" />
+        </Grid>
 
         <Image Grid.Column="1"
                Grid.Row="1" 

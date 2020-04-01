@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenCvSharp;
 using SmartSightBase.GeometryTypes;
+using SmartSightBase.Enumeration;
 
 namespace SmartSightBase
 {
@@ -26,14 +27,20 @@ namespace SmartSightBase
         private bool mAngleRaised;
         private bool mMarkerRaised;
 
-        public event EventHandler MarkerDetected = (s, e) => { };
+        public event EventHandler<EMarker> MarkerDetected = (s, e) => { };
         public event EventHandler<float> MarkerAngle = (s, e) => { };
 
         public List<List<Point2f>> GoodMarkers { get; set; } = new List<List<Point2f>>();
 
         public Transformation Transformation { get; set; }
 
-        public int[] TemplateMarker { get; set; }
+        public int[] TemplateMarkerOne { get; set; }
+
+        public int[] TemplateMarkerTwo { get; set; }
+
+        public int[] TemplateMarkerThree { get; set; }
+
+        public EMarker MarkerEnum { get; set; } = EMarker.None;
 
         public Mat DetectedMarkerImg { get; set; } = new Mat();
 
@@ -52,11 +59,23 @@ namespace SmartSightBase
             mMarkerCorners2d.Add(new Point2f(((float)mMarkerSize.Width - 1), (float)(mMarkerSize.Height - 1)));
             mMarkerCorners2d.Add(new Point2f(0, (float)(mMarkerSize.Height - 1)));
 
-            this.TemplateMarker = new int[25]{ 1, 1, 1, 0, 1,
-                                               0, 0, 0, 1, 0,
-                                               1, 1, 1, 1, 0,
-                                               1, 1, 1, 1, 0,
-                                               1, 1, 1, 0, 0 };
+            this.TemplateMarkerOne = new int[25]{ 1, 1, 1, 0, 1,
+                                                   1, 1, 1, 0, 1,
+                                                   1, 1, 1, 0, 1,
+                                                   0, 1, 1, 1, 0,
+                                                   0, 0, 0, 0, 1 };
+
+            this.TemplateMarkerTwo = new int[25] { 0, 0, 1, 1, 1,
+                                                   1, 0, 1, 0, 1,
+                                                   0, 0, 1, 1, 0,
+                                                   1, 1, 0, 1, 0,
+                                                   0, 0, 1, 0, 1 };
+
+            this.TemplateMarkerThree = new int[25] { 0, 1, 1, 0, 0,
+                                                     1, 1, 1, 0, 1,
+                                                     1, 0, 0, 0, 0,
+                                                     0, 0, 0, 1, 1,
+                                                     1, 0, 0, 0, 0 };
         }
 
         public void FindMarkers(IMonitor monitor, bool showImg)
@@ -284,17 +303,18 @@ namespace SmartSightBase
                     }
 
                 //check all possible rotations
+                // marker one
                 var rotations = new Mat[4];
                 var distances = new int[4];
                 rotations[0] = bitMatrix;
-                distances[0] = this.HammDistMarker(rotations[0]);
+                distances[0] = this.HammDistMarker(rotations[0], this.TemplateMarkerOne);
                 var minDist = new Tuple<int, int>(distances[0], 0);
 
                 for (var j = 1; j < 4; j++)
                 {
                     //get the hamming distance to the nearest possible word
                     rotations[j] = this.Rotate(rotations[j - 1]);
-                    distances[j] = this.HammDistMarker(rotations[j]);
+                    distances[j] = this.HammDistMarker(rotations[j], this.TemplateMarkerOne);
 
                     if (distances[j] < minDist.Item1)
                     {
@@ -309,9 +329,75 @@ namespace SmartSightBase
                     //no matter the camera orientation
                     var rotated = marker.Skip(marker.IndexOf(marker.First()) + 4 - nRotations).Concat(marker.Take(marker.IndexOf(marker.First()) + 4 - nRotations)).ToList();
 
+                    this.MarkerEnum = EMarker.MarkerOne;
                     this.GoodMarkers.Add(rotated);
                 }
+                else
+                {
+                    //check all possible rotations
+                    // marker two
+                    rotations = new Mat[4];
+                    distances = new int[4];
+                    rotations[0] = bitMatrix;
+                    distances[0] = this.HammDistMarker(rotations[0], this.TemplateMarkerTwo);
+                    minDist = new Tuple<int, int>(distances[0], 0);
 
+                    for (var j = 1; j < 4; j++)
+                    {
+                        //get the hamming distance to the nearest possible word
+                        rotations[j] = this.Rotate(rotations[j - 1]);
+                        distances[j] = this.HammDistMarker(rotations[j], this.TemplateMarkerTwo);
+
+                        if (distances[j] < minDist.Item1)
+                        {
+                            minDist = new Tuple<int, int>(distances[j], j);
+                        }
+                    }
+
+                    if (minDist.Item1 == 0)
+                    {
+                        var nRotations = minDist.Item2;
+                        //sort the points so that they are always in the same order
+                        //no matter the camera orientation
+                        var rotated = marker.Skip(marker.IndexOf(marker.First()) + 4 - nRotations).Concat(marker.Take(marker.IndexOf(marker.First()) + 4 - nRotations)).ToList();
+                        
+                        this.MarkerEnum = EMarker.MarkerTwo;
+                        this.GoodMarkers.Add(rotated);
+                    }
+                    else
+                    {
+                        //check all possible rotations
+                        // marker three
+                        rotations = new Mat[4];
+                        distances = new int[4];
+                        rotations[0] = bitMatrix;
+                        distances[0] = this.HammDistMarker(rotations[0], this.TemplateMarkerThree);
+                        minDist = new Tuple<int, int>(distances[0], 0);
+
+                        for (var j = 1; j < 4; j++)
+                        {
+                            //get the hamming distance to the nearest possible word
+                            rotations[j] = this.Rotate(rotations[j - 1]);
+                            distances[j] = this.HammDistMarker(rotations[j], this.TemplateMarkerThree);
+
+                            if (distances[j] < minDist.Item1)
+                            {
+                                minDist = new Tuple<int, int>(distances[j], j);
+                            }
+                        }
+
+                        if (minDist.Item1 == 0)
+                        {
+                            var nRotations = minDist.Item2;
+                            //sort the points so that they are always in the same order
+                            //no matter the camera orientation
+                            var rotated = marker.Skip(marker.IndexOf(marker.First()) + 4 - nRotations).Concat(marker.Take(marker.IndexOf(marker.First()) + 4 - nRotations)).ToList();
+                            
+                            this.MarkerEnum = EMarker.MarkerThree;
+                            this.GoodMarkers.Add(rotated);
+                        }
+                    }
+                }
             }
 
             //Marker locaiton refinement
@@ -365,7 +451,7 @@ namespace SmartSightBase
                             {
                                 mAngleRaised = true;
                                 MarkerAngle.Invoke(this, (float)this.AngleBetween(int_current_mark[0], int_current_mark[1]));
-                                System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(1);
                                 mAngleRaised = false;
                             });
                         }
@@ -375,8 +461,8 @@ namespace SmartSightBase
                             Task.Run(() =>
                             {
                                 mMarkerRaised = true;
-                                MarkerDetected.Invoke(this, new EventArgs());
-                                System.Threading.Thread.Sleep(100);
+                                MarkerDetected.Invoke(this, this.MarkerEnum);
+                                System.Threading.Thread.Sleep(1);
                                 mMarkerRaised = false;
                             });
                         }
@@ -410,7 +496,7 @@ namespace SmartSightBase
         }
 
 
-        protected int HammDistMarker(Mat bits)
+        protected int HammDistMarker(Mat bits, int[] marker)
         {
             var dist = 0;
 
@@ -425,7 +511,7 @@ namespace SmartSightBase
                     //now, count
                     for (var x = 0; x < 5; x++)
                     {
-                        sum += bits.At<byte>(y, x) == this.TemplateMarker[p * 5 + x] ? 0 : 1;
+                        sum += bits.At<byte>(y, x) == marker[p * 5 + x] ? 0 : 1;
                     }
 
                     if (minSum > sum)

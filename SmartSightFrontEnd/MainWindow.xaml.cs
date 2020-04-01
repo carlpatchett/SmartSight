@@ -19,6 +19,7 @@ using Emgu.CV;
 using Emgu.CV.Structure;
 using OpenCvSharp;
 using SmartSightBase;
+using SmartSightBase.Enumeration;
 
 namespace SmartSightFrontEnd
 {
@@ -131,7 +132,7 @@ namespace SmartSightFrontEnd
                                 this.WebcamDisplay.InvalidateVisual();
                             });
 
-                            System.Threading.Thread.Sleep(100);
+                            System.Threading.Thread.Sleep(1);
                             delay = false;
                         }
                     }
@@ -144,7 +145,7 @@ namespace SmartSightFrontEnd
         /// </summary>
         /// <param name="sender">The object sending the event.</param>
         /// <param name="e">The event parameters.</param>
-        private void mMonitor_MarkerDetected(object sender, EventArgs e)
+        private void mMonitor_MarkerDetected(object sender, EMarker e)
         {
             this.Dispatcher.Invoke(() =>
             {
@@ -165,7 +166,9 @@ namespace SmartSightFrontEnd
                     this.DetectionDisplay.Source = bitmapImg;
                 };
 
-                this.DetectionDisplay.InvalidateVisual();
+                MarkerDetectedLabel.Text = $"Detected Marker: {e.ToString()}";
+
+                //this.DetectionDisplay.InvalidateVisual();
             });
         }
 
@@ -173,7 +176,7 @@ namespace SmartSightFrontEnd
         {
             this.Dispatcher.Invoke(() =>
             {
-                this.MarkerDetectedLabel.Text = $"Marker Detected - Angle: {f}";
+                this.MarkerDetectedAngleLabel.Text = $"Marker Angle: {f}";
             });
         }
 

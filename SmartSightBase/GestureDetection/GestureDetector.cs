@@ -340,7 +340,7 @@ namespace SmartSightBase.GestureDetection
 
             if (!GestureRecognitionSetup && result != 0)
             {
-                if (mFingers.Count == 5)
+                if (mFingers.Count == 3)
                 {
                     return true;
                 }

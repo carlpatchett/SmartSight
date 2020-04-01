@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using OpenCvSharp;
 using SmartSightBase.GestureDetection;
+using SmartSightBase.Enumeration;
 
 namespace SmartSightBase
 {
@@ -35,7 +36,7 @@ namespace SmartSightBase
 
         private bool mMarkerDetected;
 
-        public event EventHandler MarkerDetected = (s, e) => { };
+        public event EventHandler<EMarker> MarkerDetected = (s, e) => { };
         public event EventHandler<float> MarkerAngle = (s, e) => { };
         public event EventHandler HandDetected = (s, e) => { };
         public event EventHandler OneFingerDetected = (s, e) => { };
@@ -189,7 +190,7 @@ namespace SmartSightBase
 
                 this.MarkerDetector.FindMarkers(this, true);
 
-                Task.Delay(1000);
+                Task.Delay(1);
 
                 mMarkerDetectionInProgress = false;
             });
@@ -245,10 +246,10 @@ namespace SmartSightBase
         /// </summary>
         /// <param name="sender">The object sendering the event.</param>
         /// <param name="e">The event parameters.</param>
-        private void mMarkerDetector_MarkerDetected(object sender, EventArgs e)
+        private void mMarkerDetector_MarkerDetected(object sender, EMarker e)
         {
             // If we have over 30 detections, reset and raise the event.
-            MarkerDetected.Invoke(this, new EventArgs());
+            MarkerDetected.Invoke(this, e);
 
             mMarkerDetected = true;
 

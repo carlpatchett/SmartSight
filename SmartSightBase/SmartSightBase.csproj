@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera\CameraCalibration.cs" />
+    <Compile Include="Enumeration\EMarker.cs" />
     <Compile Include="GeometryTypes\Matrix33.cs" />
     <Compile Include="GeometryTypes\Matrix44.cs" />
     <Compile Include="GeometryTypes\Transformation.cs" />
