@@ -6,6 +6,7 @@ using OpenCvSharp;
 using System;
 using UnityEditor;
 using UnityEngine.UI;
+using SmartSightBase.Enumeration;
 
 public class MonitorScript : MonoBehaviour
 {
@@ -15,11 +16,14 @@ public class MonitorScript : MonoBehaviour
     GameObject mKitchenLight;
     GameObject mRadio;
 
+    private EMarker mLastMarker = EMarker.None;
+
     public bool mGestureRecognitionSetUp;
 
     private Monitor mMonitor;
     private bool delay;
     private bool monitoringStarted;
+    private float angle;
 
     private LastUsedObject mLastUsedObject;
 
@@ -28,6 +32,7 @@ public class MonitorScript : MonoBehaviour
     {
         mMonitor = new Monitor();
 
+        mMonitor.MarkerDetected += mMonitor_MarkerDetected;
         mMonitor.MarkerAngle += mMonitor_MarkerAngle;
         mMonitor.OneFingerDetected += mMonitor_OneFingerDetected;
         mMonitor.TwoFingersDetected += mMonitor_TwoFingersDetected;
@@ -44,6 +49,7 @@ public class MonitorScript : MonoBehaviour
         GameObject.Find("SetupGRBtn1").transform.GetChild(1).GetComponent<Button>().enabled = true;
 
         mMonitor.StartImageCapture();
+        mMonitor.StartCameraMonitoring();
     }
 
     public void SetupGestureRecognition(bool automatic)
@@ -105,19 +111,42 @@ public class MonitorScript : MonoBehaviour
 
         var lightIntensityText = GameObject.Find("LightIntensity");
 
-        switch(mLastUsedObject)
+        switch(mLastMarker)
         {
-            case LastUsedObject.BedLight:
+            case EMarker.MarkerOne:
                 lightIntensityText.GetComponent<Text>().text = mBedLight.GetComponent<Light>().intensity.ToString();
                 break;
-            case LastUsedObject.KitchenLight:
-                lightIntensityText.GetComponent<Text>().text = mKitchenLight.GetComponent<Light>().intensity.ToString();
-                break;
-            case LastUsedObject.RoomLight:
+            case EMarker.MarkerTwo:
                 lightIntensityText.GetComponent<Text>().text = mRoomLight.GetComponent<Light>().intensity.ToString();
                 break;
-            case LastUsedObject.Radio:
+            case EMarker.MarkerThree:
                 lightIntensityText.GetComponent<Text>().text = mRadio.GetComponent<AudioSource>().volume.ToString();
+                break;
+        }
+    }
+
+    IEnumerator LinerInterp(float v_start, float v_end, float duration)
+    {
+        float elapsed = 0.0f;
+        while (elapsed < duration)
+        {
+            angle = Mathf.Lerp(v_start, v_end, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        angle = v_end;
+
+        switch (mLastMarker)
+        {
+            case EMarker.MarkerOne:
+                mBedLight.GetComponent<Light>().intensity = this.NormalizeValue(angle, 180, -180);
+                break;
+            case EMarker.MarkerTwo:
+                mRoomLight.GetComponent<Light>().intensity = this.NormalizeValue(angle, 180, -180);
+                break;
+            case EMarker.MarkerThree:
+                mRadio.GetComponent<AudioSource>().volume = this.NormalizeValue(angle, 180, -180);
                 break;
         }
     }
@@ -127,23 +156,27 @@ public class MonitorScript : MonoBehaviour
         return (val - min) / (max - min);
     }
 
+    private void mMonitor_MarkerDetected(object sender, EMarker e)
+    {
+        mLastMarker = e;
+    }
+
     private void mMonitor_MarkerAngle(object sender, float e)
     {
-        switch(mLastUsedObject)
-        {
-            case LastUsedObject.BedLight:
-                mBedLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 90, -90);
-                break;
-            case LastUsedObject.KitchenLight:
-                mKitchenLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 90, -90);
-                break;
-            case LastUsedObject.RoomLight:
-                mRoomLight.GetComponent<Light>().intensity = this.NormalizeValue(e, 90, -90);
-                break;
-            case LastUsedObject.Radio:
-                mRadio.GetComponent<AudioSource>().volume = this.NormalizeValue(e, 90, -90);
-                break;
-        }
+        StartCoroutine(LinerInterp(angle, e, 0.1f));
+
+        //switch(mLastMarker)
+        //{
+        //    case EMarker.MarkerOne:
+        //        mBedLight.GetComponent<Light>().intensity = this.NormalizeValue(angle, 180, -180);
+        //        break;
+        //    case EMarker.MarkerTwo:
+        //        mRoomLight.GetComponent<Light>().intensity = this.NormalizeValue(angle, 180, -180);
+        //        break;
+        //    case EMarker.MarkerThree:
+        //        mRadio.GetComponent<AudioSource>().volume = this.NormalizeValue(angle, 180, -180);
+        //        break;
+        //}
     }
 
     private void mMonitor_OneFingerDetected(object sender, EventArgs e)

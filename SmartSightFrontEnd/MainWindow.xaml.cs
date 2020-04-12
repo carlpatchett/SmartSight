@@ -46,6 +46,7 @@ namespace SmartSightFrontEnd
             mMonitor.FiveFingersDetected += this.mMonitor_FiveFingersDetected;
 
             mMonitor.StartImageCapture();
+            BeginMonitoring();
         }
 
         private void SetupGestureRecognition(bool automatic)
@@ -132,7 +133,7 @@ namespace SmartSightFrontEnd
                                 this.WebcamDisplay.InvalidateVisual();
                             });
 
-                            System.Threading.Thread.Sleep(1);
+                            System.Threading.Thread.Sleep(100);
                             delay = false;
                         }
                     }

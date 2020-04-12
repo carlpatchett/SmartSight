@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using OpenCvSharp;
 using SmartSightBase.GeometryTypes;
@@ -9,6 +8,9 @@ using SmartSightBase.Enumeration;
 
 namespace SmartSightBase
 {
+    /// <summary>
+    /// MarkerDetector class used for arUco marker detection.
+    /// </summary>
     public class MarkerDetector
     {
         private float mMinContourLengthAllowed = 100.0f;
@@ -30,20 +32,45 @@ namespace SmartSightBase
         public event EventHandler<EMarker> MarkerDetected = (s, e) => { };
         public event EventHandler<float> MarkerAngle = (s, e) => { };
 
+        /// <summary>
+        /// Gets/Sets the list of good marker points.
+        /// </summary>
         public List<List<Point2f>> GoodMarkers { get; set; } = new List<List<Point2f>>();
 
+        /// <summary>
+        /// Gets/Sets the current transformation.
+        /// </summary>
         public Transformation Transformation { get; set; }
 
+        /// <summary>
+        /// Gets/Sets the first marker template.
+        /// </summary>
         public int[] TemplateMarkerOne { get; set; }
 
+        /// <summary>
+        /// Gets/Sets the second marker template.
+        /// </summary>
         public int[] TemplateMarkerTwo { get; set; }
 
+        /// <summary>
+        /// Gets/Sets the third marker template.
+        /// </summary>
         public int[] TemplateMarkerThree { get; set; }
 
+        /// <summary>
+        /// Gets/Sets the current <see cref="EMarker"/> MarkerEnum.
+        /// </summary>
         public EMarker MarkerEnum { get; set; } = EMarker.None;
 
+        /// <summary>
+        /// Gets/Sets the current detected marker image.
+        /// </summary>
         public Mat DetectedMarkerImg { get; set; } = new Mat();
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="MarkerDetector"/> class.
+        /// </summary>
+        /// <param name="calibration">The calibration to use for marker detection.</param>
         public MarkerDetector(CameraCalibration calibration)
         {
             camMatrix = new Mat(3, 3, MatType.CV_32F, calibration.GetIntrinsic().Data[0]);
@@ -78,6 +105,11 @@ namespace SmartSightBase
                                                      1, 0, 0, 0, 0 };
         }
 
+        /// <summary>
+        /// Wrapper method used to find markers from a given monitor.
+        /// </summary>
+        /// <param name="monitor">The monitor to detect markers from.</param>
+        /// <param name="showImg">Whether or not to show the image.</param>
         public void FindMarkers(IMonitor monitor, bool showImg)
         {
             try
@@ -360,7 +392,7 @@ namespace SmartSightBase
                         //sort the points so that they are always in the same order
                         //no matter the camera orientation
                         var rotated = marker.Skip(marker.IndexOf(marker.First()) + 4 - nRotations).Concat(marker.Take(marker.IndexOf(marker.First()) + 4 - nRotations)).ToList();
-                        
+
                         this.MarkerEnum = EMarker.MarkerTwo;
                         this.GoodMarkers.Add(rotated);
                     }
@@ -392,7 +424,7 @@ namespace SmartSightBase
                             //sort the points so that they are always in the same order
                             //no matter the camera orientation
                             var rotated = marker.Skip(marker.IndexOf(marker.First()) + 4 - nRotations).Concat(marker.Take(marker.IndexOf(marker.First()) + 4 - nRotations)).ToList();
-                            
+
                             this.MarkerEnum = EMarker.MarkerThree;
                             this.GoodMarkers.Add(rotated);
                         }
@@ -451,7 +483,7 @@ namespace SmartSightBase
                             {
                                 mAngleRaised = true;
                                 MarkerAngle.Invoke(this, (float)this.AngleBetween(int_current_mark[0], int_current_mark[1]));
-                                System.Threading.Thread.Sleep(1);
+                                System.Threading.Thread.Sleep(200);
                                 mAngleRaised = false;
                             });
                         }
@@ -462,7 +494,7 @@ namespace SmartSightBase
                             {
                                 mMarkerRaised = true;
                                 MarkerDetected.Invoke(this, this.MarkerEnum);
-                                System.Threading.Thread.Sleep(1);
+                                System.Threading.Thread.Sleep(200);
                                 mMarkerRaised = false;
                             });
                         }

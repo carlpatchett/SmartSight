@@ -7,6 +7,9 @@ using OpenCvSharp;
 
 namespace SmartSightBase.GestureDetection
 {
+    /// <summary>
+    /// GestureDetector used for detecting hand gestures.
+    /// </summary>
     public class GestureDetector
     {
         private readonly IMonitor mMonitor;
@@ -29,19 +32,45 @@ namespace SmartSightBase.GestureDetection
         public event EventHandler TwoFingersDetected = (s, e) => { };
         public event EventHandler OneFingerDetected = (s, e) => { };
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="GestureDetector"/> class.
+        /// </summary>
+        /// <param name="monitor">The monitor to scan for gestures.</param>
         public GestureDetector(IMonitor monitor)
         {
             mMonitor = monitor;
         }
 
+        /// <summary>
+        /// Gets/Sets wheter gesture recognition has been set up.
+        /// </summary>
         public bool GestureRecognitionSetup { get; set; }
 
+        /// <summary>
+        /// Gets/Sets the gesture recognition image.
+        /// </summary>
         public Mat GestureImg { get; set; }
 
+        /// <summary>
+        /// Gets/Sets the threshold image.
+        /// </summary>
         public Mat ThreshholdImg { get; set; }
 
+        /// <summary>
+        /// Gets/Sets the <see cref="RecognitionSetupType"/> SetupType.
+        /// </summary>
         public RecognitionSetupType SetupType { get; set; }
 
+        /// <summary>
+        /// Gets/Sets whether gesture recognition has been enabled.
+        /// </summary>
+        public bool GestureDetectionEnabled;
+
+        /// <summary>
+        /// Sets up the gesture recognition.
+        /// </summary>
+        /// <param name="automatic">Whether the recognition should be set up automatically, or manually.</param>
+        /// <returns>True if recognition was set up successfully, otherwise False.</returns>
         public bool SetUpGestureRecognition(bool automatic)
         {
             mH = 0;
@@ -63,6 +92,7 @@ namespace SmartSightBase.GestureDetection
 
                 this.SetupType = RecognitionSetupType.Manual;
                 this.GestureRecognitionSetup = true;
+                this.GestureDetectionEnabled = true;
                 return true;
             }
             else
@@ -83,6 +113,7 @@ namespace SmartSightBase.GestureDetection
                                 mV = v;
 
                                 this.GestureRecognitionSetup = true;
+                                this.GestureDetectionEnabled = true;
                                 return true;
                             }
                         }
@@ -93,6 +124,13 @@ namespace SmartSightBase.GestureDetection
             return false;
         }
 
+        /// <summary>
+        /// Starts gesture recognition.
+        /// </summary>
+        /// <param name="h">The hue value to use for gesture recognition.</param>
+        /// <param name="s">The saturation value to use for gesture recognition.</param>
+        /// <param name="v">The brightness value to use for gesture recognition.</param>
+        /// <returns></returns>
         public bool StartGestureRecognition(int h = 0, int s = 0, int v = 0)
         {
             mFingerDistances.Clear();
@@ -277,6 +315,13 @@ namespace SmartSightBase.GestureDetection
             return false;
         }
 
+        /// <summary>
+        /// Gest the recognised gesture from the given image.
+        /// </summary>
+        /// <param name="renderMat">The image used to capture gesture recognition.</param>
+        /// <param name="contours">The contours of the recognised gesture.</param>
+        /// <param name="ci">The index of the contour list.</param>
+        /// <returns>True if a gesture was recognised, otherwise False.</returns>
         public bool GetRecognisedGesture(Mat renderMat, Point[][] contours, int ci)
         {
             Mat newMat = new Mat();
@@ -291,11 +336,11 @@ namespace SmartSightBase.GestureDetection
             var result = 0;
             for (var i = 0; i < mFingers.Count; i++)
             {
+                Cv2.Circle(newMat, mFingers[i], 3, Scalar.Blue);
+                Cv2.PutText(newMat, "Finger", mFingers[i], HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
+
                 if (mFingerDistances[i] <= mAverageDefectDistance + 15)
                 {
-                    Cv2.Circle(newMat, mFingers[i], 3, Scalar.Blue);
-                    Cv2.PutText(newMat, "Finger", mFingers[i], HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
-
                     result++;
                 }
             }
@@ -356,6 +401,9 @@ namespace SmartSightBase.GestureDetection
         }
     }
 
+    /// <summary>
+    /// Recognition Types.
+    /// </summary>
     public enum RecognitionSetupType
     {
         Automatic,

@@ -25,7 +25,6 @@ namespace SmartSightBase
 
         private CancellationTokenSource mMarkerDetectionToken = new CancellationTokenSource();
         private CancellationTokenSource mGestureDetectionToken = new CancellationTokenSource();
-
         private CancellationTokenSource mOneFingerDetectionToken = new CancellationTokenSource();
         private CancellationTokenSource mTwoFingersDetectionToken = new CancellationTokenSource();
         private CancellationTokenSource mThreeFingersDetectionToken = new CancellationTokenSource();
@@ -33,7 +32,6 @@ namespace SmartSightBase
         private CancellationTokenSource mFiveFingersDetectionToken = new CancellationTokenSource();
 
         public VideoCapture mCapture;
-
         private bool mMarkerDetected;
 
         public event EventHandler<EMarker> MarkerDetected = (s, e) => { };
@@ -67,6 +65,9 @@ namespace SmartSightBase
         /// </summary>
         public MarkerDetector MarkerDetector { get; }
 
+        /// <summary>
+        /// Gets the current GestureDetector.
+        /// </summary>
         public GestureDetector GestureDetector { get; }
 
         /// <summary>
@@ -74,6 +75,9 @@ namespace SmartSightBase
         /// </summary>
         public Mat CameraImg => mCameraImg;
 
+        /// <summary>
+        /// Gets the current GestureDetector Capture Image.
+        /// </summary>
         public Mat GestureImg => this.GestureDetector.GestureImg;
 
         /// <summary>
@@ -93,6 +97,9 @@ namespace SmartSightBase
 
         #endregion
 
+        /// <summary>
+        /// Starts the video device capturing.
+        /// </summary>
         public void StartImageCapture()
         {
             Task.Run(() =>
@@ -140,19 +147,22 @@ namespace SmartSightBase
                 }
             }, mMarkerDetectionToken.Token);
 
-            Task.Run(() =>
+            if (GestureDetector.GestureDetectionEnabled)
             {
-                while (true)
+                Task.Run(() =>
                 {
-                    while (!this.HasImg)
+                    while (true)
                     {
-                        Thread.Sleep(100);
-                    }
+                        while (!this.HasImg)
+                        {
+                            Thread.Sleep(100);
+                        }
 
-                    this.GestureDetector.StartGestureRecognition();
-                    Cv2.WaitKey(1);
-                }
-            }, mGestureDetectionToken.Token);
+                        this.GestureDetector.StartGestureRecognition();
+                        Cv2.WaitKey(1);
+                    }
+                }, mGestureDetectionToken.Token);
+            }
 
             return true;
         }
@@ -369,7 +379,6 @@ namespace SmartSightBase
                 mFourFingersDetectionCount++;
             }
         }
-
 
         private void mGestureDetector_FiveFingersDetected(object sender, EventArgs e)
         {
