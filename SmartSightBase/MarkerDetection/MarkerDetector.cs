@@ -6,6 +6,11 @@ using OpenCvSharp;
 using SmartSightBase.GeometryTypes;
 using SmartSightBase.Enumeration;
 
+/// <summary>
+/// Carl Patchett
+/// 27/04/2020
+/// NHE2422 Advanced Computer Games Development
+/// </summary>
 namespace SmartSightBase
 {
     /// <summary>
@@ -179,7 +184,6 @@ namespace SmartSightBase
 
         protected void FindCandidates(List<List<Point>> contours, List<List<Point2f>> marks)
         {
-            //var approxCurve = new List<Point>();
             var possibleMarkers = new List<List<Point2f>>();
 
             // For each contour, analyze if it is a parallelepiped likely to be the	marker
@@ -195,12 +199,10 @@ namespace SmartSightBase
                 }
                 catch (ArgumentNullException)
                 {
-                    // Chomp chomp, no idea
+                    // Chomp chomp, needs buffered array clearing in future
                 }
 
                 var approxCurve = Cv2.ApproxPolyDP(contours[i], eps, true).ToList();
-
-                //Cv2.ApproxPolyDP(inputArray, outputArray, eps, true);
 
                 // We interested only in polygons that contains only four points
                 if (approxCurve.Count != 4)
@@ -526,7 +528,6 @@ namespace SmartSightBase
 
             return outMatrix;
         }
-
 
         protected int HammDistMarker(Mat bits, int[] marker)
         {

@@ -1,26 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Emgu.CV;
-using Emgu.CV.Structure;
-using OpenCvSharp;
 using SmartSightBase;
 using SmartSightBase.Enumeration;
 
+/// <summary>
+/// Carl Patchett
+/// 27/04/2020
+/// NHE2422 Advanced Computer Games Development
+/// </summary>
 namespace SmartSightFrontEnd
 {
     /// <summary>
@@ -31,10 +20,14 @@ namespace SmartSightFrontEnd
         private readonly Monitor mMonitor = new Monitor();
         private bool mMonitoringStarted;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="MainWindow"/>.
+        /// </summary>
         public MainWindow()
         {
             this.InitializeComponent();
 
+            // Hook up all events from our monitor
             mMonitor.MarkerDetected += this.mMonitor_MarkerDetected;
             mMonitor.MarkerAngle += this.mMonitor_MarkerAngleDetected;
 
@@ -46,9 +39,13 @@ namespace SmartSightFrontEnd
             mMonitor.FiveFingersDetected += this.mMonitor_FiveFingersDetected;
 
             mMonitor.StartImageCapture();
-            BeginMonitoring();
+            this.BeginMonitoring();
         }
 
+        /// <summary>
+        /// Set up Gesture Recognition.
+        /// </summary>
+        /// <param name="automatic">Whether Gesture Recognition should be automatic or not.</param>
         private void SetupGestureRecognition(bool automatic)
         {
             var setupSuccessful = mMonitor.GestureDetector.SetUpGestureRecognition(automatic);
@@ -83,6 +80,8 @@ namespace SmartSightFrontEnd
 
                             delay = true;
 
+                            // Offload UI work to the UI Thread
+                            // This is because most events will be raised through worker threads
                             this.Dispatcher.Invoke(() =>
                             {
                                 if (mMonitor.CameraImg != null)
@@ -173,6 +172,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the MarkerAngle event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The float angle detected.</param>
         private void mMonitor_MarkerAngleDetected(object sender, float f)
         {
             this.Dispatcher.Invoke(() =>
@@ -181,6 +185,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the HandDetected event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void mMonitor_HandDetected(object sender, EventArgs e)
         {
             this.Dispatcher.Invoke(() =>
@@ -206,6 +215,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the OneFingerDetected event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void mMonitor_OneFingerDetected(object sender, EventArgs e)
         {
             this.Dispatcher.Invoke(() =>
@@ -215,6 +229,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the TwoFingersDetected event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void mMonitor_TwoFingersDetected(object sender, EventArgs e)
         {
             this.Dispatcher.Invoke(() =>
@@ -224,6 +243,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the ThreeFingersDetected event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void mMonitor_ThreeFingersDetected(object sender, EventArgs e)
         {
             this.Dispatcher.Invoke(() =>
@@ -233,6 +257,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the FourFingersDetected event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void mMonitor_FourFingersDetected(object sender, EventArgs e)
         {
             this.Dispatcher.Invoke(() =>
@@ -242,6 +271,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the FiveFingersDetected event from the <see cref="Monitor"/> class.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void mMonitor_FiveFingersDetected(object sender, EventArgs e)
         {
             this.Dispatcher.Invoke(() =>
@@ -251,6 +285,11 @@ namespace SmartSightFrontEnd
             });
         }
 
+        /// <summary>
+        /// Handles the Automatic Gesture Recognition button click event.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             if (mMonitoringStarted)
@@ -261,6 +300,11 @@ namespace SmartSightFrontEnd
             SetupGestureRecognition(true);
         }
 
+        /// <summary>
+        /// Handles the Manual Gesture Recognition button click event.
+        /// </summary>
+        /// <param name="sender">The object sending the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             if (mMonitoringStarted)

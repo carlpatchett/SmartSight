@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using OpenCvSharp;
 
+/// <summary>
+/// Carl Patchett
+/// 27/04/2020
+/// NHE2422 Advanced Computer Games Development
+/// </summary>
 namespace SmartSightBase.GestureDetection
 {
     /// <summary>
@@ -130,7 +134,7 @@ namespace SmartSightBase.GestureDetection
         /// <param name="h">The hue value to use for gesture recognition.</param>
         /// <param name="s">The saturation value to use for gesture recognition.</param>
         /// <param name="v">The brightness value to use for gesture recognition.</param>
-        /// <returns></returns>
+        /// <returns>True if gesture recognition was set up, otherwise False.</returns>
         public bool StartGestureRecognition(int h = 0, int s = 0, int v = 0)
         {
             mFingerDistances.Clear();
@@ -151,6 +155,7 @@ namespace SmartSightBase.GestureDetection
             Mat mask2 = new Mat();
             hsvColourSpace.CopyTo(mask2);
 
+            // Switch our colour space depending on manual or automatic recognition
             if (this.SetupType == RecognitionSetupType.Automatic)
             {
                 if (mH != 0 || mS != 0 || mV != 0)
@@ -170,6 +175,7 @@ namespace SmartSightBase.GestureDetection
             var kernal_ellipse = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5));
             var kernal_square = Cv2.GetStructuringElement(MorphShapes.Rect, new Size(11, 11));
 
+            // Dilate, Erode and Blur until we remove all detail from the threshold image
             Mat dilation = new Mat();
             mask2.CopyTo(dilation);
             Cv2.Dilate(mask2, dilation, kernal_ellipse);
@@ -207,6 +213,7 @@ namespace SmartSightBase.GestureDetection
             ret.CopyTo(thresh);
             this.ThreshholdImg = thresh;
 
+            // Collect our contours
             Cv2.FindContours(thresh, out var contours, out var hierarchy, RetrievalModes.List, ContourApproximationModes.ApproxSimple);
 
             double max_area = 100;
@@ -231,11 +238,13 @@ namespace SmartSightBase.GestureDetection
 
             var cnts = contours[ci];
 
+            // Create the hull and indicies used to locate finger points
             var hull = Cv2.ConvexHull(cnts);
             var hull2 = Cv2.ConvexHullIndices(cnts);
 
             Mat convexityDefect = new Mat();
 
+            // Calculate all hull defects so we can identify fingers
             Vec4i[] defects = Cv2.ConvexityDefects(cnts, hull2);
             var farDefects = new List<Tuple<Point, int>>();
             for (var i = 0; i < defects.Length; i++)
@@ -257,10 +266,12 @@ namespace SmartSightBase.GestureDetection
                 cy = (int)moments.M01 / (int)moments.M00;
             }
 
+            // Calculate the palm center
             mCenterMass = new Point(cx, cy);
 
             var distanceBetweenDefectsToCenter = new List<double>();
 
+            // Calculate and use an average defect distance to remove erroneous outliers
             for (var i = 0; i < farDefects.Count; i++)
             {
                 var x = farDefects[i];
@@ -278,6 +289,7 @@ namespace SmartSightBase.GestureDetection
 
             mAverageDefectDistance = sortedDetectsDistances.Average();
 
+            // Iterate through potential fingers, adding them to the hull
             var finger = new List<Point>();
             for (var i = 0; i < hull.Length - 1; i++)
             {
@@ -291,6 +303,7 @@ namespace SmartSightBase.GestureDetection
             var goodFingers = new List<Point>();
             var allFingers = sortedFinger.Take(5);
 
+            // Only add fingers that satisfy preconditions
             foreach (var tempFinger in allFingers)
             {
                 if (tempFinger.Y < mCenterMass.Y + 10)
@@ -330,12 +343,14 @@ namespace SmartSightBase.GestureDetection
             // Draw the contours for debugging purposes
             Cv2.DrawContours(newMat, contours, ci, Scalar.Red);
 
+            // Draw the center mass
             Cv2.Circle(newMat, mCenterMass, 3, Scalar.Red);
             Cv2.PutText(newMat, "Center", mCenterMass, HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
 
             var result = 0;
             for (var i = 0; i < mFingers.Count; i++)
             {
+                // Draw each finger
                 Cv2.Circle(newMat, mFingers[i], 3, Scalar.Blue);
                 Cv2.PutText(newMat, "Finger", mFingers[i], HersheyFonts.HersheySimplex, 1, Scalar.White, 1);
 
@@ -345,6 +360,7 @@ namespace SmartSightBase.GestureDetection
                 }
             }
 
+            // If we arent on an event delay, raise our event for the specified number of indentified fingers
             if (result > 0 && !mEventDelay)
             {
                 if (this.GestureRecognitionSetup)

@@ -107,21 +107,9 @@ public class MonitorScript : MonoBehaviour
             Cv2.ImShow("Gesture Recognition Img", mMonitor.GestureImg);
         }
 
-        GameObject.Find("LastUsedLight").GetComponent<Text>().text = mLastUsedObject.ToString();
-
-        var lightIntensityText = GameObject.Find("LightIntensity");
-
-        switch(mLastMarker)
+        if (mMonitor?.DetectedMarkerImg != null)
         {
-            case EMarker.MarkerOne:
-                lightIntensityText.GetComponent<Text>().text = mBedLight.GetComponent<Light>().intensity.ToString();
-                break;
-            case EMarker.MarkerTwo:
-                lightIntensityText.GetComponent<Text>().text = mRoomLight.GetComponent<Light>().intensity.ToString();
-                break;
-            case EMarker.MarkerThree:
-                lightIntensityText.GetComponent<Text>().text = mRadio.GetComponent<AudioSource>().volume.ToString();
-                break;
+            Cv2.ImShow("Marker Img", mMonitor.DetectedMarkerImg);
         }
     }
 

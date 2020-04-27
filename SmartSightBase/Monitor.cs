@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenCvSharp;
 using SmartSightBase.GestureDetection;
 using SmartSightBase.Enumeration;
 
+/// <summary>
+/// Carl Patchett
+/// 27/04/2020
+/// NHE2422 Advanced Computer Games Development
+/// </summary>
 namespace SmartSightBase
 {
+    /// <summary>
+    /// The Monitor class used by SmartSight to control Marker Detection, Gesture Recognition and Camera Monitoring.
+    /// </summary>
     public class Monitor : IMonitor
     {
         private readonly static float[] mCameraMatrix = new float[9] { 612.84f, 0.0f, 326.46f, 0.0f, 612.84f, 289.42f, 0.0f, 0.0f, 1.0f };
@@ -31,7 +35,7 @@ namespace SmartSightBase
         private CancellationTokenSource mFourFingersDetectionToken = new CancellationTokenSource();
         private CancellationTokenSource mFiveFingersDetectionToken = new CancellationTokenSource();
 
-        public VideoCapture mCapture;
+        private VideoCapture mCapture;
         private bool mMarkerDetected;
 
         public event EventHandler<EMarker> MarkerDetected = (s, e) => { };
@@ -119,6 +123,7 @@ namespace SmartSightBase
         /// <returns>True if monitoring was initialized successfully, otherwise False.</returns>
         public bool StartCameraMonitoring()
         {
+            // Hook up events
             this.MarkerDetector.MarkerDetected += this.mMarkerDetector_MarkerDetected;
             this.MarkerDetector.MarkerAngle += this.mMarkerDetector_MarkerAngle;
             this.GestureDetector.HandDetected += this.mGestureDetector_HandDetected;
@@ -128,15 +133,18 @@ namespace SmartSightBase
             this.GestureDetector.FourFingersDetected += this.mGestureDetector_FourFingersDetected;
             this.GestureDetector.FiveFingersDetected += this.mGestureDetector_FiveFingersDetected;
             
+            // Only start image capture if our capture device successfully retrieves an image
             if (!this.HasImg)
             {
                 this.StartImageCapture();
             }
 
+            // Offload expensive work to worker threads
             Task.Run(() =>
             {
                 while (true)
                 {
+                    // No need to check detection each frame, do it periodically
                     while (!this.HasImg)
                     {
                         Thread.Sleep(100);
@@ -147,12 +155,14 @@ namespace SmartSightBase
                 }
             }, mMarkerDetectionToken.Token);
 
+            // Only start gesture detection if it's enabled
             if (GestureDetector.GestureDetectionEnabled)
             {
                 Task.Run(() =>
                 {
                     while (true)
                     {
+                        // No need to check detection each frame, do it periodically
                         while (!this.HasImg)
                         {
                             Thread.Sleep(100);
@@ -172,8 +182,8 @@ namespace SmartSightBase
         /// </summary>
         public void StopCameraMonitoring()
         {
+            // Unhook all events
             this.MarkerDetector.MarkerDetected -= this.mMarkerDetector_MarkerDetected;
-
             this.GestureDetector.HandDetected -= this.mGestureDetector_HandDetected;
             this.GestureDetector.OneFingerDetected -= this.mGestureDetector_OneFingerDetected;
             this.GestureDetector.TwoFingersDetected -= this.mGestureDetector_TwoFingersDetected;
@@ -206,6 +216,9 @@ namespace SmartSightBase
             });
         }
 
+        /// <summary>
+        /// Starts the one finger detection countdown - this allows 2 and a half seconds for 8 successful detections.
+        /// </summary>
         private void StartOneFingerDetectionCountdown()
         {
             Task.Run(() =>
@@ -215,6 +228,9 @@ namespace SmartSightBase
             }, mOneFingerDetectionToken.Token);
         }
 
+        /// <summary>
+        /// Starts the two fingers detection countdown - this allows 2 and a half seconds for 8 successful detections.
+        /// </summary>
         private void StartTwoFingersDetectionCountdown()
         {
             Task.Run(() =>
@@ -224,6 +240,9 @@ namespace SmartSightBase
             }, mTwoFingersDetectionToken.Token);
         }
 
+        /// <summary>
+        /// Starts the three fingers detection countdown - this allows 2 and a half seconds for 8 successful detections.
+        /// </summary>
         private void StartThreeFingersDetectionCountdown()
         {
             Task.Run(() =>
@@ -233,6 +252,9 @@ namespace SmartSightBase
             }, mThreeFingersDetectionToken.Token);
         }
 
+        /// <summary>
+        /// Starts the three fingers detection countdown - this allows 2 and a half seconds for 8 successful detections.
+        /// </summary>
         private void StartFourFingersDetectionCountdown()
         {
             Task.Run(() =>
@@ -242,6 +264,9 @@ namespace SmartSightBase
             }, mFourFingersDetectionToken.Token);
         }
 
+        /// <summary>
+        /// Starts the three fingers detection countdown - this allows 2 and a half seconds for 8 successful detections.
+        /// </summary>
         private void StartFiveFingersDetectionCountdown()
         {
             Task.Run(() =>
@@ -270,28 +295,45 @@ namespace SmartSightBase
             });
         }
 
+        /// <summary>
+        /// Handles the MarkerAngle event from the <see cref="MarkerDetector"/> class, and re-raises it.
+        /// </summary>
         private void mMarkerDetector_MarkerAngle(object sender, float f)
         {
             MarkerAngle.Invoke(this, f);
         }
 
+        /// <summary>
+        /// Handles the HandDetected event from the <see cref="GestureDetector"/> class.
+        /// </summary>
+        /// <remarks>
+        /// Currently awaiting further implementation with custom gesture recognition.
+        /// </remarks>
         private void mGestureDetector_HandDetected(object sender, EventArgs e)
         {
-            //To do: Implement
+            throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Handles the One Finger Detected event from the <see cref="GestureDetector"/> class.
+        /// </summary>
+        /// <param name="sender">The instance sending the event.</param>
+        /// <param name="e">The event args related to the event.</param>
         private void mGestureDetector_OneFingerDetected(object sender, EventArgs e)
         {
+            // If we are currently detecting a marker, ignore the gesture event
             if (mMarkerDetected)
             {
                 return;
             }
 
+            // If this is the first one finger detection, start a countdown
             if (mOneFingerDetectionCount == 0)
             {
                 this.StartOneFingerDetectionCountdown();
             }
 
+            // If we have 8 or more successful detections, raise our events and reset our countdown
             if (mOneFingerDetectionCount >= 8)
             {
                 OneFingerDetected.Invoke(this, new EventArgs());
@@ -305,18 +347,26 @@ namespace SmartSightBase
             }
         }
 
+        /// <summary>
+        /// Handles the Two Fingers Detected event from the <see cref="GestureDetector"/> class.
+        /// </summary>
+        /// <param name="sender">The instance sending the event.</param>
+        /// <param name="e">The event args related to the event.</param>
         private void mGestureDetector_TwoFingersDetected(object sender, EventArgs e)
         {
+            // If we are currently detecting a marker, ignore the gesture event
             if (mMarkerDetected)
             {
                 return;
             }
 
+            // If this is the first two finger detection, start a countdown
             if (mTwoFingersDetectionCount == 0)
             {
                 this.StartTwoFingersDetectionCountdown();
             }
 
+            // If we have 8 or more successful detections, raise our events and reset our countdown
             if (mTwoFingersDetectionCount >= 8)
             {
                 TwoFingersDetected.Invoke(this, new EventArgs());
@@ -330,18 +380,26 @@ namespace SmartSightBase
             }
         }
 
+        /// <summary>
+        /// Handles the Three Fingers Detected event from the <see cref="GestureDetector"/> class.
+        /// </summary>
+        /// <param name="sender">The instance sending the event.</param>
+        /// <param name="e">The event args related to the event.</param>
         private void mGestureDetector_ThreeFingersDetected(object sender, EventArgs e)
         {
+            // If we are currently detecting a marker, ignore the gesture event
             if (mMarkerDetected)
             {
                 return;
             }
 
+            // If this is the first three finger detection, start a countdown
             if (mThreeFingersDetectionCount == 0)
             {
                 this.StartThreeFingersDetectionCountdown();
             }
 
+            // If we have 8 or more successful detections, raise our events and reset our countdown
             if (mThreeFingersDetectionCount >= 8)
             {
                 ThreeFingersDetected.Invoke(this, new EventArgs());
@@ -355,18 +413,26 @@ namespace SmartSightBase
             }
         }
 
+        /// <summary>
+        /// Handles the Four Fingers Detected event from the <see cref="GestureDetector"/> class.
+        /// </summary>
+        /// <param name="sender">The instance sending the event.</param>
+        /// <param name="e">The event args related to the event.</param>
         private void mGestureDetector_FourFingersDetected(object sender, EventArgs e)
         {
+            // If we are currently detecting a marker, ignore the gesture event
             if (mMarkerDetected)
             {
                 return;
             }
 
+            // If this is the first four finger detection, start a countdown
             if (mFourFingersDetectionCount == 0)
             {
                 this.StartFourFingersDetectionCountdown();
             }
 
+            // If we have 8 or more successful detections, raise our events and reset our countdown
             if (mFourFingersDetectionCount >= 8)
             {
                 FourFingersDetected.Invoke(this, new EventArgs());
@@ -380,18 +446,26 @@ namespace SmartSightBase
             }
         }
 
+        /// <summary>
+        /// Handles the Five Fingers Detected event from the <see cref="GestureDetector"/> class.
+        /// </summary>
+        /// <param name="sender">The instance sending the event.</param>
+        /// <param name="e">The event args related to the event.</param>
         private void mGestureDetector_FiveFingersDetected(object sender, EventArgs e)
         {
+            // If we are currently detecting a marker, ignore the gesture event
             if (mMarkerDetected)
             {
                 return;
             }
 
+            // If this is the first five finger detection, start a countdown
             if (mFiveFingersDetectionCount == 0)
             {
                 this.StartFiveFingersDetectionCountdown();
             }
 
+            // If we have 8 or more successful detections, raise our events and reset our countdown
             if (mFiveFingersDetectionCount >= 8)
             {
                 FiveFingersDetected.Invoke(this, new EventArgs());
